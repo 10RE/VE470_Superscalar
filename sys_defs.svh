@@ -102,11 +102,11 @@ typedef enum logic [1:0] {
 typedef enum logic [4:0] {
 	ALU_ADD     = 5'h00,
 	ALU_SUB     = 5'h01,
+	ALU_XOR     = 5'h06,
 	ALU_SLT     = 5'h02,
 	ALU_SLTU    = 5'h03,
 	ALU_AND     = 5'h04,
 	ALU_OR      = 5'h05,
-	ALU_XOR     = 5'h06,
 	ALU_SLL     = 5'h07,
 	ALU_SRL     = 5'h08,
 	ALU_SRA     = 5'h09,
@@ -119,6 +119,22 @@ typedef enum logic [4:0] {
 	ALU_REM     = 5'h10,
 	ALU_REMU    = 5'h11
 } ALU_FUNC;
+
+//////////////////////////////////////////////
+//
+// Hazard control signals
+//
+//////////////////////////////////////////////
+
+typedef enum logic [3:0] {
+	NO_FORWARD  = 4'h0,
+	EX_MEM_0 = 4'h1,
+	EX_MEM_1 = 4'h2,
+	EX_MEM_2 = 4'h3,
+	MEM_WB_0 = 4'h4,
+	MEM_WB_1 = 4'h5,
+	MEM_WB_2 = 4'h6
+} FORWARDING_TYPE;
 
 //////////////////////////////////////////////
 //
@@ -158,8 +174,8 @@ typedef enum logic [1:0] {
 //
 // useful boolean single-bit definitions
 //
-`define FALSE  1'h0
 `define TRUE  1'h1
+`define FALSE  1'h0
 
 // RISCV ISA SPEC
 `define XLEN 32
@@ -283,6 +299,7 @@ typedef struct packed {
 	logic       illegal;       // is this instruction illegal?
 	logic       csr_op;        // is this a CSR operation? (we only used this as a cheap way to get return code)
 	logic       valid;         // is inst a valid instruction to be counted for CPI calculations?
+	FORWARDING_TYPE forwarding;
 } ID_EX_PACKET;
 
 typedef struct packed {
