@@ -90,7 +90,7 @@ module superregfile(
     else
       rdb_out_1 = rdb_reg_1;
       
-    //
+  //
   // Read port A_2
   //
   always_comb

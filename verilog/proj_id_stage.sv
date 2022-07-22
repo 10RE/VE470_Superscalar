@@ -10,6 +10,7 @@
 
 
 `timescale 1ns/100ps
+`define USE_DETECTION
 
 
   // Decode an instruction: given instruction bits IR produce the
@@ -266,6 +267,10 @@ module proj_id_stage(
     IF_ID_PACKET sorted_packet_0;
     IF_ID_PACKET sorted_packet_1;
     IF_ID_PACKET sorted_packet_2;
+
+	ID_EX_PACKET id_packet_internal_0;
+	ID_EX_PACKET id_packet_internal_1;
+	ID_EX_PACKET id_packet_internal_2;
     
     assign packet_select_0 = pre_rollback == 3 ? hold_reg_0 : if_id_packet_in_0;
     assign packet_select_1 = pre_rollback >= 2 ? hold_reg_1 : if_id_packet_in_1;
@@ -281,15 +286,15 @@ module proj_id_stage(
         .packet_out_2(sorted_packet_2)
     );
     
-    assign id_packet_out_0.inst = sorted_packet_0.inst;
-    assign id_packet_out_0.NPC  = sorted_packet_0.NPC;
-    assign id_packet_out_0.PC   = sorted_packet_0.PC;
-    assign id_packet_out_1.inst = sorted_packet_1.inst;
-    assign id_packet_out_1.NPC  = sorted_packet_1.NPC;
-    assign id_packet_out_1.PC   = sorted_packet_1.PC;
-    assign id_packet_out_2.inst = sorted_packet_2.inst;
-    assign id_packet_out_2.NPC  = sorted_packet_2.NPC;
-    assign id_packet_out_2.PC   = sorted_packet_2.PC;
+    assign id_packet_internal_0.inst = sorted_packet_0.inst;
+    assign id_packet_internal_0.NPC  = sorted_packet_0.NPC;
+    assign id_packet_internal_0.PC   = sorted_packet_0.PC;
+    assign id_packet_internal_1.inst = sorted_packet_1.inst;
+    assign id_packet_internal_1.NPC  = sorted_packet_1.NPC;
+    assign id_packet_internal_1.PC   = sorted_packet_1.PC;
+    assign id_packet_internal_2.inst = sorted_packet_2.inst;
+    assign id_packet_internal_2.NPC  = sorted_packet_2.NPC;
+    assign id_packet_internal_2.PC   = sorted_packet_2.PC;
     
     
     
@@ -309,22 +314,22 @@ module proj_id_stage(
 	// Instantiate the register file used by this pipeline
 	superregfile regf_0 (
 		.rda_idx_0(sorted_packet_0.inst.r.rs1),
-		.rda_out_0(id_packet_out_0.rs1_value), 
+		.rda_out_0(id_packet_internal_0.rs1_value), 
 
 		.rdb_idx_0(sorted_packet_0.inst.r.rs2),
-		.rdb_out_0(id_packet_out_0.rs2_value),
+		.rdb_out_0(id_packet_internal_0.rs2_value),
 		
 		.rda_idx_1(sorted_packet_1.inst.r.rs1),
-		.rda_out_1(id_packet_out_1.rs1_value), 
+		.rda_out_1(id_packet_internal_1.rs1_value), 
 
 		.rdb_idx_1(sorted_packet_1.inst.r.rs2),
-		.rdb_out_1(id_packet_out_1.rs2_value),
+		.rdb_out_1(id_packet_internal_1.rs2_value),
 		
 		.rda_idx_2(sorted_packet_2.inst.r.rs1),
-		.rda_out_2(id_packet_out_2.rs1_value), 
+		.rda_out_2(id_packet_internal_2.rs1_value), 
 
 		.rdb_idx_2(sorted_packet_2.inst.r.rs2),
-		.rdb_out_2(id_packet_out_2.rs2_value),
+		.rdb_out_2(id_packet_internal_2.rs2_value),
 
 		.wr_clk(clock),
 		.wr_en_0(wb_reg_wr_en_out_0),
@@ -346,16 +351,16 @@ module proj_id_stage(
 		// Outputs
 		.opa_select(temp_opa_select_0),
 		.opb_select(temp_opb_select_0),
-		.alu_func(id_packet_out_0.alu_func),
+		.alu_func(id_packet_internal_0.alu_func),
 		.dest_reg(dest_reg_select_0),
-		.rd_mem(id_packet_out_0.rd_mem),
-		.wr_mem(id_packet_out_0.wr_mem),
-		.cond_branch(id_packet_out_0.cond_branch),
-		.uncond_branch(id_packet_out_0.uncond_branch),
-		.csr_op(id_packet_out_0.csr_op),
-		.halt(id_packet_out_0.halt),
-		.illegal(id_packet_out_0.illegal),
-		.valid_inst(id_packet_out_0.valid)
+		.rd_mem(id_packet_internal_0.rd_mem),
+		.wr_mem(id_packet_internal_0.wr_mem),
+		.cond_branch(id_packet_internal_0.cond_branch),
+		.uncond_branch(id_packet_internal_0.uncond_branch),
+		.csr_op(id_packet_internal_0.csr_op),
+		.halt(id_packet_internal_0.halt),
+		.illegal(id_packet_internal_0.illegal),
+		.valid_inst(id_packet_internal_0.valid)
 	);
 	
 	decoder decoder_1 (
@@ -363,16 +368,16 @@ module proj_id_stage(
 		// Outputs
 		.opa_select(temp_opa_select_1),
 		.opb_select(temp_opb_select_1),
-		.alu_func(id_packet_out_1.alu_func),
+		.alu_func(id_packet_internal_1.alu_func),
 		.dest_reg(dest_reg_select_1),
-		.rd_mem(id_packet_out_1.rd_mem),
-		.wr_mem(id_packet_out_1.wr_mem),
-		.cond_branch(id_packet_out_1.cond_branch),
-		.uncond_branch(id_packet_out_1.uncond_branch),
-		.csr_op(id_packet_out_1.csr_op),
-		.halt(id_packet_out_1.halt),
-		.illegal(id_packet_out_1.illegal),
-		.valid_inst(id_packet_out_1.valid)
+		.rd_mem(id_packet_internal_1.rd_mem),
+		.wr_mem(id_packet_internal_1.wr_mem),
+		.cond_branch(id_packet_internal_1.cond_branch),
+		.uncond_branch(id_packet_internal_1.uncond_branch),
+		.csr_op(id_packet_internal_1.csr_op),
+		.halt(id_packet_internal_1.halt),
+		.illegal(id_packet_internal_1.illegal),
+		.valid_inst(id_packet_internal_1.valid)
 	);
 	
 	decoder decoder_2 (
@@ -380,37 +385,37 @@ module proj_id_stage(
 		// Outputs
 		.opa_select(temp_opa_select_2),
 		.opb_select(temp_opb_select_2),
-		.alu_func(id_packet_out_2.alu_func),
+		.alu_func(id_packet_internal_2.alu_func),
 		.dest_reg(dest_reg_select_2),
-		.rd_mem(id_packet_out_2.rd_mem),
-		.wr_mem(id_packet_out_2.wr_mem),
-		.cond_branch(id_packet_out_2.cond_branch),
-		.uncond_branch(id_packet_out_2.uncond_branch),
-		.csr_op(id_packet_out_2.csr_op),
-		.halt(id_packet_out_2.halt),
-		.illegal(id_packet_out_2.illegal),
-		.valid_inst(id_packet_out_2.valid)
+		.rd_mem(id_packet_internal_2.rd_mem),
+		.wr_mem(id_packet_internal_2.wr_mem),
+		.cond_branch(id_packet_internal_2.cond_branch),
+		.uncond_branch(id_packet_internal_2.uncond_branch),
+		.csr_op(id_packet_internal_2.csr_op),
+		.halt(id_packet_internal_2.halt),
+		.illegal(id_packet_internal_2.illegal),
+		.valid_inst(id_packet_internal_2.valid)
 	);
 
 	// mux to generate dest_reg_idx based on
 	// the dest_reg_select output from decoder
 	always_comb begin
 		case (dest_reg_select_0)
-			DEST_RD:    id_packet_out_0.dest_reg_idx = sorted_packet_0.inst.r.rd;
-			DEST_NONE:  id_packet_out_0.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_out_0.dest_reg_idx = `ZERO_REG; 
+			DEST_RD:    id_packet_internal_0.dest_reg_idx = sorted_packet_0.inst.r.rd;
+			DEST_NONE:  id_packet_internal_0.dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal_0.dest_reg_idx = `ZERO_REG; 
 		endcase
 		
 		case (dest_reg_select_1)
-			DEST_RD:    id_packet_out_1.dest_reg_idx = sorted_packet_1.inst.r.rd;
-			DEST_NONE:  id_packet_out_1.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_out_1.dest_reg_idx = `ZERO_REG; 
+			DEST_RD:    id_packet_internal_1.dest_reg_idx = sorted_packet_1.inst.r.rd;
+			DEST_NONE:  id_packet_internal_1.dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal_1.dest_reg_idx = `ZERO_REG; 
 		endcase
 		
 		case (dest_reg_select_2)
-			DEST_RD:    id_packet_out_2.dest_reg_idx = sorted_packet_2.inst.r.rd;
-			DEST_NONE:  id_packet_out_2.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_out_2.dest_reg_idx = `ZERO_REG; 
+			DEST_RD:    id_packet_internal_2.dest_reg_idx = sorted_packet_2.inst.r.rd;
+			DEST_NONE:  id_packet_internal_2.dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal_2.dest_reg_idx = `ZERO_REG; 
 		endcase
 	end
 	
@@ -482,7 +487,30 @@ module proj_id_stage(
 	   end
 	   
 	end
-	
+	*/
+`ifdef USE_DETECTION
+	detection_unit detection_unit_0(
+        .id_packet_0(id_packet_internal_0),
+        .id_packet_1(id_packet_internal_1),
+        .id_packet_2(id_packet_internal_2),
+        .ex_packet_0(id_ex_packet_in_0),
+        .ex_packet_1(id_ex_packet_in_1),
+        .ex_packet_2(id_ex_packet_in_2),
+        .mem_packet_0(ex_mem_packet_in_0),
+        .mem_packet_1(ex_mem_packet_in_1),
+        .mem_packet_2(ex_mem_packet_in_2),
+        .id_packet_out_0(id_packet_out_0),
+        .id_packet_out_1(id_packet_out_1),
+        .id_packet_out_2(id_packet_out_2),
+        .rollback(rollback),
+    );
+`else
+	assign id_packet_out_0 = id_packet_internal_0;
+	assign id_packet_out_1 = id_packet_internal_1;
+	assign id_packet_out_2 = id_packet_internal_2;
+`endif
+
+	/*
 	always_ff @(posedge clock) begin
 	   pre_rollback <= `SD rollback;
 	   hold_reg_0 <= `SD if_id_packet_in_0;
@@ -490,7 +518,6 @@ module proj_id_stage(
 	   hold_reg_2 <= `SD if_id_packet_in_2;
 	end
 	*/
-	
 	
    
 endmodule // module id_stage
