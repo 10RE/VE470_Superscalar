@@ -95,86 +95,69 @@ module brcond(// Inputs
 	
 endmodule // brcond
 
-
-module ex_stage(
+// Single Ex Stage module
+module signle_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
-	input ID_EX_PACKET   id_ex_packet_in_0,
-	input ID_EX_PACKET   id_ex_packet_in_1,
-	input ID_EX_PACKET   id_ex_packet_in_2,
-	output EX_MEM_PACKET ex_packet_out_0,
-	output EX_MEM_PACKET ex_packet_out_1,
-	output EX_MEM_PACKET ex_packet_out_2
+	input ID_EX_PACKET   id_ex_packet_in,
+	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	output EX_MEM_PACKET ex_packet_out
 );
+
 	// Pass-throughs
-	assign ex_packet_out_0.NPC 				= id_ex_packet_in_0.NPC;
-	assign ex_packet_out_0.rs2_value 		= id_ex_packet_in_0.rs2_value;
-	assign ex_packet_out_0.rd_mem 			= id_ex_packet_in_0.rd_mem;
-	assign ex_packet_out_0.wr_mem 			= id_ex_packet_in_0.wr_mem;
-	assign ex_packet_out_0.dest_reg_idx 	= id_ex_packet_in_0.dest_reg_idx;
-	assign ex_packet_out_0.halt 			= id_ex_packet_in_0.halt;
-	assign ex_packet_out_0.illegal 			= id_ex_packet_in_0.illegal;
-	assign ex_packet_out_0.csr_op 			= id_ex_packet_in_0.csr_op;
-	assign ex_packet_out_0.valid 			= id_ex_packet_in_0.valid;
-	assign ex_packet_out_0.mem_size 		= id_ex_packet_in_0.inst.r.funct3;
+	assign ex_packet_out.NPC 				= id_ex_packet_in.NPC;
+	assign ex_packet_out.rs2_value 			= forward_rs2_value;
+	assign ex_packet_out.rd_mem 			= id_ex_packet_in.rd_mem;
+	assign ex_packet_out.wr_mem 			= id_ex_packet_in.wr_mem;
+	assign ex_packet_out.dest_reg_idx 		= id_ex_packet_in.dest_reg_idx;
+	assign ex_packet_out.halt 				= id_ex_packet_in.halt;
+	assign ex_packet_out.illegal 			= id_ex_packet_in.illegal;
+	assign ex_packet_out.csr_op 			= id_ex_packet_in.csr_op;
+	assign ex_packet_out.valid 				= id_ex_packet_in.valid;
+	assign ex_packet_out.mem_size 			= id_ex_packet_in.inst.r.funct3;
 
-	assign ex_packet_out_1.NPC 				= id_ex_packet_in_1.NPC;
-	assign ex_packet_out_1.rs2_value 		= id_ex_packet_in_1.rs2_value;
-	assign ex_packet_out_1.rd_mem 			= id_ex_packet_in_1.rd_mem;
-	assign ex_packet_out_1.wr_mem 			= id_ex_packet_in_1.wr_mem;
-	assign ex_packet_out_1.dest_reg_idx 	= id_ex_packet_in_1.dest_reg_idx;
-	assign ex_packet_out_1.halt 			= id_ex_packet_in_1.halt;
-	assign ex_packet_out_1.illegal 			= id_ex_packet_in_1.illegal;
-	assign ex_packet_out_1.csr_op 			= id_ex_packet_in_1.csr_op;
-	assign ex_packet_out_1.valid 			= id_ex_packet_in_1.valid;
-	assign ex_packet_out_1.mem_size 		= id_ex_packet_in_1.inst.r.funct3;
+	logic [`XLEN-1:0] opa_mux_out, opb_mux_out;
+	logic brcond_result;
+	logic [`XLEN-1:0] forward_rs1_value, forward_rs2_value;
 
-	assign ex_packet_out_2.NPC 				= id_ex_packet_in_2.NPC;
-	assign ex_packet_out_2.rs2_value 		= id_ex_packet_in_2.rs2_value;
-	assign ex_packet_out_2.rd_mem 			= id_ex_packet_in_2.rd_mem;
-	assign ex_packet_out_2.wr_mem 			= id_ex_packet_in_2.wr_mem;
-	assign ex_packet_out_2.dest_reg_idx 	= id_ex_packet_in_2.dest_reg_idx;
-	assign ex_packet_out_2.halt 			= id_ex_packet_in_2.halt;
-	assign ex_packet_out_2.illegal 			= id_ex_packet_in_2.illegal;
-	assign ex_packet_out_2.csr_op 			= id_ex_packet_in_2.csr_op;
-	assign ex_packet_out_2.valid 			= id_ex_packet_in_2.valid;
-	assign ex_packet_out_2.mem_size 		= id_ex_packet_in_2.inst.r.funct3;
+	//
+	// forward
+	//
+	always_comb begin
+		forward_rs1_value=0;
+		case (id_ex_packet_in.rs1_select)
+			RS_IS_RS: 		forward_rs1_value	=	id_ex_packet_in.rs1_value;
+			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
+			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
+			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
+			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
+			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
+			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+		endcase
 
-	logic [`XLEN-1:0] opa_mux_out_0, opb_mux_out_0;
-	logic brcond_result_0;
+		forward_rs2_value=0;
+		case (id_ex_packet_in.rs2_select)
+			RS_IS_RS: 		forward_rs2_value	=	id_ex_packet_in.rs2_value;
+			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
+			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
+			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
+			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
+			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
+			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+		endcase
+	end
 
-	logic [`XLEN-1:0] opa_mux_out_1, opb_mux_out_1;
-	logic brcond_result_1;
-
-	logic [`XLEN-1:0] opa_mux_out_2, opb_mux_out_2;
-	logic brcond_result_2;
-	
 	//
 	// ALU opA mux
 	//
 	always_comb begin
-		opa_mux_out_0 = `XLEN'hdeadfbac;
-		case (id_ex_packet_in_0.opa_select)
-			OPA_IS_RS1:  opa_mux_out_0 = id_ex_packet_in_0.rs1_value;
-			OPA_IS_NPC:  opa_mux_out_0 = id_ex_packet_in_0.NPC;
-			OPA_IS_PC:   opa_mux_out_0 = id_ex_packet_in_0.PC;
-			OPA_IS_ZERO: opa_mux_out_0 = 0;
-		endcase
-
-		opa_mux_out_1 = `XLEN'hdeadfbac;
-		case (id_ex_packet_in_1.opa_select)
-			OPA_IS_RS1:  opa_mux_out_1 = id_ex_packet_in_1.rs1_value;
-			OPA_IS_NPC:  opa_mux_out_1 = id_ex_packet_in_1.NPC;
-			OPA_IS_PC:   opa_mux_out_1 = id_ex_packet_in_1.PC;
-			OPA_IS_ZERO: opa_mux_out_1 = 0;
-		endcase
-
-		opa_mux_out_2 = `XLEN'hdeadfbac;
-		case (id_ex_packet_in_2.opa_select)
-			OPA_IS_RS1:  opa_mux_out_2 = id_ex_packet_in_2.rs1_value;
-			OPA_IS_NPC:  opa_mux_out_2 = id_ex_packet_in_2.NPC;
-			OPA_IS_PC:   opa_mux_out_2 = id_ex_packet_in_2.PC;
-			OPA_IS_ZERO: opa_mux_out_2 = 0;
+		opa_mux_out = `XLEN'hdeadfbac;
+		case (id_ex_packet_in.opa_select)
+			OPA_IS_RS1:  opa_mux_out = forward_rs1_value;
+			OPA_IS_NPC:  opa_mux_out = id_ex_packet_in.NPC;
+			OPA_IS_PC:   opa_mux_out = id_ex_packet_in.PC;
+			OPA_IS_ZERO: opa_mux_out = 0;
 		endcase
 	end
 
@@ -182,109 +165,93 @@ module ex_stage(
 	 // ALU opB mux
 	 //
 	always_comb begin
-		// Default value, Set only because the case isnt full.  If you see this
-		// value on the output of the mux you have an invalid opb_select
-		opb_mux_out_0 = `XLEN'hfacefeed;
-		case (id_ex_packet_in_0.opb_select)
-			OPB_IS_RS2:   opb_mux_out_0 = id_ex_packet_in_0.rs2_value;
-			OPB_IS_I_IMM: opb_mux_out_0 = `RV32_signext_Iimm(id_ex_packet_in_0.inst);
-			OPB_IS_S_IMM: opb_mux_out_0 = `RV32_signext_Simm(id_ex_packet_in_0.inst);
-			OPB_IS_B_IMM: opb_mux_out_0 = `RV32_signext_Bimm(id_ex_packet_in_0.inst);
-			OPB_IS_U_IMM: opb_mux_out_0 = `RV32_signext_Uimm(id_ex_packet_in_0.inst);
-			OPB_IS_J_IMM: opb_mux_out_0 = `RV32_signext_Jimm(id_ex_packet_in_0.inst);
-		endcase 
-
-		opb_mux_out_1 = `XLEN'hfacefeed;
-		case (id_ex_packet_in_1.opb_select)
-			OPB_IS_RS2:   opb_mux_out_1 = id_ex_packet_in_1.rs2_value;
-			OPB_IS_I_IMM: opb_mux_out_1 = `RV32_signext_Iimm(id_ex_packet_in_1.inst);
-			OPB_IS_S_IMM: opb_mux_out_1 = `RV32_signext_Simm(id_ex_packet_in_1.inst);
-			OPB_IS_B_IMM: opb_mux_out_1 = `RV32_signext_Bimm(id_ex_packet_in_1.inst);
-			OPB_IS_U_IMM: opb_mux_out_1 = `RV32_signext_Uimm(id_ex_packet_in_1.inst);
-			OPB_IS_J_IMM: opb_mux_out_1 = `RV32_signext_Jimm(id_ex_packet_in_1.inst);
-		endcase 
-
-		opb_mux_out_2 = `XLEN'hfacefeed;
-		case (id_ex_packet_in_2.opb_select)
-			OPB_IS_RS2:   opb_mux_out_2 = id_ex_packet_in_2.rs2_value;
-			OPB_IS_I_IMM: opb_mux_out_2 = `RV32_signext_Iimm(id_ex_packet_in_2.inst);
-			OPB_IS_S_IMM: opb_mux_out_2 = `RV32_signext_Simm(id_ex_packet_in_2.inst);
-			OPB_IS_B_IMM: opb_mux_out_2 = `RV32_signext_Bimm(id_ex_packet_in_2.inst);
-			OPB_IS_U_IMM: opb_mux_out_2 = `RV32_signext_Uimm(id_ex_packet_in_2.inst);
-			OPB_IS_J_IMM: opb_mux_out_2 = `RV32_signext_Jimm(id_ex_packet_in_2.inst);
+		opb_mux_out = `XLEN'hfacefeed;
+		case (id_ex_packet_in.opb_select)
+			OPB_IS_RS2:   opb_mux_out = forward_rs2_value;
+			OPB_IS_I_IMM: opb_mux_out = `RV32_signext_Iimm(id_ex_packet_in.inst);
+			OPB_IS_S_IMM: opb_mux_out = `RV32_signext_Simm(id_ex_packet_in.inst);
+			OPB_IS_B_IMM: opb_mux_out = `RV32_signext_Bimm(id_ex_packet_in.inst);
+			OPB_IS_U_IMM: opb_mux_out = `RV32_signext_Uimm(id_ex_packet_in.inst);
+			OPB_IS_J_IMM: opb_mux_out = `RV32_signext_Jimm(id_ex_packet_in.inst);
 		endcase 
 	end
 
-	//
-	// instantiate the ALU
-	//
 	alu alu_0 (// Inputs
-		.opa(opa_mux_out_0),
-		.opb(opb_mux_out_0),
-		.func(id_ex_packet_in_0.alu_func),
+		.opa(opa_mux_out),
+		.opb(opb_mux_out),
+		.func(id_ex_packet_in.alu_func),
 
 		// Output
-		.result(ex_packet_out_0.alu_result)
+		.result(ex_packet_out.alu_result)
 	);
 
-	alu alu_1 (// Inputs
-		.opa(opa_mux_out_1),
-		.opb(opb_mux_out_1),
-		.func(id_ex_packet_in_1.alu_func),
-
-		// Output
-		.result(ex_packet_out_1.alu_result)
-	);
-
-	alu alu_2 (// Inputs
-		.opa(opa_mux_out_2),
-		.opb(opb_mux_out_2),
-		.func(id_ex_packet_in_2.alu_func),
-
-		// Output
-		.result(ex_packet_out_2.alu_result)
-	);
-
-	 //
-	 // instantiate the branch condition tester
-	 //
 	brcond brcond_0 (// Inputs
-		.rs1(id_ex_packet_in_0.rs1_value), 
-		.rs2(id_ex_packet_in_0.rs2_value),
-		.func(id_ex_packet_in_0.inst.b.funct3), // inst bits to determine check
+		.rs1(id_ex_packet_in.rs1_value), 
+		.rs2(id_ex_packet_in.rs2_value),
+		.func(id_ex_packet_in.inst.b.funct3), // inst bits to determine check
 
 		// Output
-		.cond(brcond_result_0)
+		.cond(brcond_result)
 	);
 
-	brcond brcond_1 (// Inputs
-		.rs1(id_ex_packet_in_1.rs1_value), 
-		.rs2(id_ex_packet_in_1.rs2_value),
-		.func(id_ex_packet_in_1.inst.b.funct3), // inst bits to determine check
-
-		// Output
-		.cond(brcond_result_1)
-	);
-
-	brcond brcond_2 (// Inputs
-		.rs1(id_ex_packet_in_2.rs1_value), 
-		.rs2(id_ex_packet_in_2.rs2_value),
-		.func(id_ex_packet_in_2.inst.b.funct3), // inst bits to determine check
-
-		// Output
-		.cond(brcond_result_2)
-	);
-
-	 // ultimate "take branch" signal:
+	// ultimate "take branch" signal:
 	 //	unconditional, or conditional and the condition is true
-	assign ex_packet_out_0.take_branch = id_ex_packet_in_0.uncond_branch
-		                          | (id_ex_packet_in_0.cond_branch & brcond_result_0);
+	assign ex_packet_out.take_branch = id_ex_packet_in.uncond_branch
+		                          | (id_ex_packet_in.cond_branch & brcond_result);
+endmodule // single_ex_stage
 
-	assign ex_packet_out_1.take_branch = id_ex_packet_in_1.uncond_branch
-		                          | (id_ex_packet_in_1.cond_branch & brcond_result_1);
 
-	assign ex_packet_out_2.take_branch = id_ex_packet_in_2.uncond_branch
-		                          | (id_ex_packet_in_2.cond_branch & brcond_result_2);
+module ex_stage(
+	input clock,               // system clock
+	input reset,               // system reset
+	input ID_EX_PACKET   id_ex_packet_in_0,
+	input ID_EX_PACKET   id_ex_packet_in_1,
+	input ID_EX_PACKET   id_ex_packet_in_2,
+	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	output EX_MEM_PACKET ex_packet_out_0,
+	output EX_MEM_PACKET ex_packet_out_1,
+	output EX_MEM_PACKET ex_packet_out_2
+);
+	
+	signle_ex_stage ex_stage_0 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_0),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_0)
+	);
+
+	signle_ex_stage ex_stage_1 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_1),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_1)
+	);
+
+	signle_ex_stage ex_stage_0 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_2),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_2)
+	);
 
 endmodule // module ex_stage
 `endif // __EX_STAGE_V__

@@ -17,6 +17,7 @@
 `timescale 1ns/100ps
 
 
+// Single Mem Stage module
 module single_mem_stage(
 	input         clock,              // system clock
 	input         reset,              // system reset
@@ -66,7 +67,7 @@ module single_mem_stage(
 	//if we are in 32 bit mode, then we should never load a double word sized data
 	assert property (@(negedge clock) (`XLEN == 32) && ex_mem_packet_in.rd_mem |-> proc2Dmem_size != DOUBLE);
 
-endmodule
+endmodule // single_mem_stage
 
 
 module mem_stage(
