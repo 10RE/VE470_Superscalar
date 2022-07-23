@@ -95,6 +95,8 @@ module brcond(// Inputs
 	
 endmodule // brcond
 
+
+
 // Single Ex Stage module
 module signle_ex_stage(
 	input clock,               // system clock
@@ -211,7 +213,10 @@ module ex_stage(
 	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
 	output EX_MEM_PACKET ex_packet_out_0,
 	output EX_MEM_PACKET ex_packet_out_1,
-	output EX_MEM_PACKET ex_packet_out_2
+	output EX_MEM_PACKET ex_packet_out_2,
+	output logic ex_mem_take_branch,
+	output logic [`XLEN-1:0] ex_mem_target_pc,
+	output logic [1:0] ex_mem_branch_way
 );
 	
 	signle_ex_stage ex_stage_0 (
@@ -252,6 +257,28 @@ module ex_stage(
 		.mem_2_result(mem_2_result),
 		.ex_packet_out(ex_packet_out_2)
 	);
+
+	// brcond
+	always_comb begin
+		ex_mem_take_branch = 0;
+		ex_mem_target_pc = 0;
+		ex_mem_branch_way = 0;
+		if (ex_packet_out_0.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_0.alu_result;
+			ex_mem_branch_way = 0;
+		end
+		else if (ex_packet_out_1.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_1.alu_result;
+			ex_mem_branch_way = 1;
+		end
+		else if (ex_packet_out_2.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_2.alu_result;
+			ex_mem_branch_way = 2;
+		end
+	end
 
 endmodule // module ex_stage
 `endif // __EX_STAGE_V__
