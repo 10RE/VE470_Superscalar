@@ -110,12 +110,18 @@ module pipeline (
 
 	// Outputs from EX/MEM Pipeline Register
 	EX_MEM_PACKET ex_mem_packet [`WAYS:0];
+
 	logic ex_mem_take_branch;
 	logic [`XLEN-1:0] ex_mem_target_pc;
 	logic [1:0] ex_mem_branch_way;
 	
 	
 	// Outputs from MEM-Stage
+	logic mem_take_branch;
+	logic [`XLEN-1:0] mem_target_pc;
+	logic [1:0] mem_branch_way;
+
+
 	logic [`XLEN-1:0] mem_result_out [`WAYS:0];
 
 
@@ -214,8 +220,8 @@ module pipeline (
 		.clock (clock),
 		.reset (reset),
 		.mem_wb_valid_inst(mem_wb_valid_inst),
-		.ex_mem_take_branch(ex_mem_take_branch),
-		.ex_mem_target_pc(ex_mem_target_pc),
+		.ex_mem_take_branch(mem_take_branch),
+		.ex_mem_target_pc(mem_target_pc),
 		.Imem2proc_data_0(mem2proc_data[0]),
 		.Imem2proc_data_1(mem2proc_data[1]),
 		.Imem2proc_data_2(mem2proc_data[2]),
@@ -464,6 +470,10 @@ module pipeline (
 			ex_mem_packet[1] <= `SD 0;
 			ex_mem_packet[2] <= `SD 0;
 
+			mem_take_branch <= `SD 0;
+			mem_target_pc 	<= `SD 0;
+			mem_branch_way 	<= `SD 0;
+
 		end else begin
 			// if (ex_mem_enable)   begin
 			// 	// these are forwarded directly from ID/EX registers, only for debugging purposes
@@ -478,6 +488,10 @@ module pipeline (
 			ex_mem_packet[0] <= `SD ex_packet[0];
 			ex_mem_packet[1] <= `SD ex_packet[1];
 			ex_mem_packet[2] <= `SD ex_packet[2];
+
+			mem_take_branch <= `SD ex_mem_take_branch;
+			mem_target_pc 	<= `SD ex_mem_target_pc;
+			mem_branch_way 	<= `SD ex_mem_branch_way;
 		end // else: !if(reset)
 	end // always
 
