@@ -299,7 +299,8 @@ typedef struct packed {
 	logic       illegal;       // is this instruction illegal?
 	logic       csr_op;        // is this a CSR operation? (we only used this as a cheap way to get return code)
 	logic       valid;         // is inst a valid instruction to be counted for CPI calculations?
-	FORWARDING_TYPE forwarding;
+	FORWARDING_TYPE forwarding_A;
+	FORWARDING_TYPE forwarding_B;
 } ID_EX_PACKET;
 
 typedef struct packed {
@@ -312,6 +313,7 @@ typedef struct packed {
 	logic [4:0]       dest_reg_idx;
 	logic             halt, illegal, csr_op, valid;
 	logic [2:0]       mem_size; // byte, half-word or word
+	INST inst;
 } EX_MEM_PACKET;
 
 `endif // __SYS_DEFS_VH__
