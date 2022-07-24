@@ -16,7 +16,9 @@
 
 `timescale 1ns/100ps
 
-module mem_stage(
+
+// Single Mem Stage module
+module single_mem_stage(
 	input         clock,              // system clock
 	input         reset,              // system reset
 	input  EX_MEM_PACKET ex_mem_packet_in,      // write memory? (from decoder)
@@ -28,8 +30,6 @@ module mem_stage(
 	output logic [`XLEN-1:0] proc2Dmem_addr,      // Address sent to data-memory
 	output logic [`XLEN-1:0] proc2Dmem_data      // Data sent to data-memory
 );
-
-
 
 	// Determine the command that must be sent to mem
 	assign proc2Dmem_command =
@@ -66,6 +66,79 @@ module mem_stage(
 	end
 	//if we are in 32 bit mode, then we should never load a double word sized data
 	assert property (@(negedge clock) (`XLEN == 32) && ex_mem_packet_in.rd_mem |-> proc2Dmem_size != DOUBLE);
+
+endmodule // single_mem_stage
+
+
+module mem_stage(
+	input         clock,              // system clock
+	input         reset,              // system reset
+	input  EX_MEM_PACKET ex_mem_packet_in_0,      // write memory? (from decoder)
+	input  EX_MEM_PACKET ex_mem_packet_in_1,
+	input  EX_MEM_PACKET ex_mem_packet_in_2,
+	
+	input  [`XLEN-1:0] Dmem2proc_data_0,
+	input  [`XLEN-1:0] Dmem2proc_data_1,
+	input  [`XLEN-1:0] Dmem2proc_data_2,
+	
+	output logic [`XLEN-1:0] mem_result_out_0,      // outgoing instruction result (to MEM/WB)
+	output logic [`XLEN-1:0] mem_result_out_1,
+	output logic [`XLEN-1:0] mem_result_out_2,
+
+	output logic [1:0] proc2Dmem_command_0,
+	output logic [1:0] proc2Dmem_command_1,
+	output logic [1:0] proc2Dmem_command_2,
+
+	output MEM_SIZE proc2Dmem_size_0,
+	output MEM_SIZE proc2Dmem_size_1,
+	output MEM_SIZE proc2Dmem_size_2,
+
+	output logic [`XLEN-1:0] proc2Dmem_addr_0,      // Address sent to data-memory
+	output logic [`XLEN-1:0] proc2Dmem_addr_1,
+	output logic [`XLEN-1:0] proc2Dmem_addr_2,
+
+	output logic [`XLEN-1:0] proc2Dmem_data_0,      // Data sent to data-memory
+	output logic [`XLEN-1:0] proc2Dmem_data_1,
+	output logic [`XLEN-1:0] proc2Dmem_data_2,
+);
+
+single_mem_stage single_mem_stage_0 (
+	.clock(clock),             
+    .reset(reset),              
+  	.ex_mem_packet_in(ex_mem_packet_in_0),      
+  	.Dmem2proc_data(Dmem2proc_data_0),
+	.mem_result_out(mem_result_out_0),
+	.proc2Dmem_command(proc2Dmem_command_0),
+	.proc2Dmem_size(proc2Dmem_size_0),
+	.proc2Dmem_addr(proc2Dmem_addr_0),
+	.proc2Dmem_data(proc2Dmem_data_0)
+);
+
+single_mem_stage single_mem_stage_1 (
+	.clock(clock),             
+    .reset(reset),              
+  	.ex_mem_packet_in(ex_mem_packet_in_1),      
+  	.Dmem2proc_data(Dmem2proc_data_1),
+	.mem_result_out(mem_result_out_1),
+	.proc2Dmem_command(proc2Dmem_command_1),
+	.proc2Dmem_size(proc2Dmem_size_1),
+	.proc2Dmem_addr(proc2Dmem_addr_1),
+	.proc2Dmem_data(proc2Dmem_data_1)
+);
+
+single_mem_stage single_mem_stage_2 (
+	.clock(clock),             
+    .reset(reset),              
+  	.ex_mem_packet_in(ex_mem_packet_in_2),      
+  	.Dmem2proc_data(Dmem2proc_data_2),
+	.mem_result_out(mem_result_out_2),
+	.proc2Dmem_command(proc2Dmem_command_2),
+	.proc2Dmem_size(proc2Dmem_size_2),
+	.proc2Dmem_addr(proc2Dmem_addr_2),
+	.proc2Dmem_data(proc2Dmem_data_2)
+);
+
+	
 
 endmodule // module mem_stage
 `endif // __MEM_STAGE_V__
