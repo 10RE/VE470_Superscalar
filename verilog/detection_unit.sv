@@ -26,8 +26,8 @@ module detection_unit(
 
 `ifdef DETECTION_UNIT_TEST
     ,
-    output FORWARDING_TYPE [2:0] forwarding_A,
-    output FORWARDING_TYPE [2:0] forwarding_B
+    output RS_SELECT [2:0] forwarding_A,
+    output RS_SELECT [2:0] forwarding_B
 `endif
 
 );

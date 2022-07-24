@@ -22,8 +22,8 @@ module detection_unit_test();
 
     logic [1:0] rollback;
 
-    FORWARDING_TYPE [2:0] forwarding_A;
-    FORWARDING_TYPE [2:0] forwarding_B;
+    RS_SELECT [2:0] forwarding_A;
+    RS_SELECT [2:0] forwarding_B;
 
     detection_unit detection_unit_0(
         .id_packet_0(id_packet_0),

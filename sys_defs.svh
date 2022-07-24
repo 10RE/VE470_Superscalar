@@ -97,7 +97,7 @@ typedef enum logic [2:0] {
 	RS_IS_MEM_1 = 3'h4,
 	RS_IS_EX_2  = 3'h5,
 	RS_IS_MEM_2 = 3'h6
-} FORWARDING_TYPE;
+} RS_SELECT;
 
 //
 // Destination register select
