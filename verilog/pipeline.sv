@@ -41,10 +41,11 @@ module pipeline (
 
 	output logic [3:0]  pipeline_completed_insts,
 	output EXCEPTION_CODE   pipeline_error_status,
-	output logic [4:0]  pipeline_commit_wr_idx,
-	output logic [`XLEN-1:0] pipeline_commit_wr_data,
-	output logic        pipeline_commit_wr_en,
-	output logic [`XLEN-1:0] pipeline_commit_NPC,
+
+	output logic [4:0]  pipeline_commit_wr_idx [`WAYS:0],
+	output logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0],
+	output logic        pipeline_commit_wr_en [`WAYS:0],
+	output logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS:0],
 	
 	
 	// testing hooks (these must be exported so we can test
@@ -78,7 +79,7 @@ module pipeline (
 	// Outputs from MEM/WB Pipeline Register
 	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0],
 	output logic [31:0] mem_wb_IR [`WAYS:0],
-	output logic        mem_wb_valid_inst
+	output logic        mem_wb_valid_inst [`WAYS:0]
 
 );
 
@@ -164,16 +165,33 @@ module pipeline (
 	logic [`XLEN-1:0] ex_mem_target_pc;
 	logic [1:0] ex_mem_branch_way;
 	
-	assign pipeline_completed_insts = {3'b0, mem_wb_valid_inst};
-	assign pipeline_error_status =  mem_wb_illegal             ? ILLEGAL_INST :
-	                                mem_wb_halt                ? HALTED_ON_WFI :
-	                                (mem2proc_response[0]==4'h0)  ? LOAD_ACCESS_FAULT :
+	always_comb begin
+		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 
+								   {3'b000, mem_wb_valid_inst[2]} + 
+								   {3'b000, mem_wb_valid_inst[2]};
+	end
+	// assign pipeline_completed_insts = {3'b0, mem_wb_valid_inst};
+	
+	assign pipeline_error_status =  (mem_wb_illegal[0] | mem_wb_illegal[1] | mem_wb_illegal[2])          ? 		ILLEGAL_INST :
+	                                (mem_wb_halt[0] | mem_wb_halt[1] | mem_wb_halt[2])                ? HALTED_ON_WFI :
+	                                ((mem2proc_response[0]==4'h0) | (mem2proc_response[1]==4'h0) | (mem2proc_response[2]==4'h0))  ? LOAD_ACCESS_FAULT :
 	                                NO_ERROR;
 	
-	assign pipeline_commit_wr_idx = wb_reg_wr_idx_out[0];
-	assign pipeline_commit_wr_data = wb_reg_wr_data_out[0];
-	assign pipeline_commit_wr_en = wb_reg_wr_en_out[0];
-	assign pipeline_commit_NPC = mem_wb_NPC[0];
+	assign pipeline_commit_wr_idx[0] = wb_reg_wr_idx_out[0];
+	assign pipeline_commit_wr_idx[1] = wb_reg_wr_idx_out[1];
+	assign pipeline_commit_wr_idx[2] = wb_reg_wr_idx_out[2];
+
+	assign pipeline_commit_wr_data[0] = wb_reg_wr_data_out[0];
+	assign pipeline_commit_wr_data[1] = wb_reg_wr_data_out[1];
+	assign pipeline_commit_wr_data[2] = wb_reg_wr_data_out[2];
+
+	assign pipeline_commit_wr_en[0] = wb_reg_wr_en_out[0];
+	assign pipeline_commit_wr_en[1] = wb_reg_wr_en_out[1];
+	assign pipeline_commit_wr_en[2] = wb_reg_wr_en_out[2];
+
+	assign pipeline_commit_NPC[0] = mem_wb_NPC[0];
+	assign pipeline_commit_NPC[1] = mem_wb_NPC[1];
+	assign pipeline_commit_NPC[2] = mem_wb_NPC[2];
 	
 	assign proc2mem_command[0] =
 	     (proc2Dmem_command[0] == BUS_NONE) ? BUS_LOAD : proc2Dmem_command[0];
@@ -253,7 +271,9 @@ module pipeline (
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
 			if_id_valid_inst[i] = if_id_packet[i].valid;
-			if_id_enable[i] = 1'b1; // always enabled
+			if_id_enable
+			
+			 = 1'b1; // always enabled
 		end
 	end
 	
@@ -337,7 +357,7 @@ module pipeline (
 			id_ex_IR[i]         = id_ex_packet[i].inst;
 			id_ex_valid_inst[i] = id_ex_packet[i].valid;
 
-			id_ex_enable[i] = 1'b1; // always enabled
+			id_ex_enable = 1'b1; // always enabled
 		end
 	end
 	// synopsys sync_set_reset "reset"
@@ -455,9 +475,7 @@ module pipeline (
 	assign ex_mem_valid_inst[1] = ex_mem_packet[1].valid;
 	assign ex_mem_valid_inst[2] = ex_mem_packet[2].valid;
 	
-	assign ex_mem_enable[0] = 1'b1;
-	assign ex_mem_enable[1] = 1'b1; 
-	assign ex_mem_enable[2] = 1'b1; 		
+	assign ex_mem_enable = 1'b1;
 	
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
@@ -569,7 +587,10 @@ module pipeline (
 			mem_wb_take_branch[2]  <= `SD 0;
 			mem_wb_result[2]       <= `SD 0;
 
-			mem_wb_valid_inst   <= `SD 0;
+			mem_wb_valid_inst[0]   <= `SD 0;
+			mem_wb_valid_inst[1]   <= `SD 0;
+			mem_wb_valid_inst[2]   <= `SD 0;
+
 		end else begin
 			if (mem_wb_enable) begin
 				// these are forwarded directly from EX/MEM latches
@@ -598,7 +619,9 @@ module pipeline (
 				mem_wb_take_branch[2]  <= `SD ex_mem_packet[2].take_branch;
 				mem_wb_result[2]       <= `SD mem_result_out[2];
 				
-				mem_wb_valid_inst   <= `SD ex_mem_packet[0].valid;
+				mem_wb_valid_inst[0]   <= `SD ex_mem_packet[0].valid;
+				mem_wb_valid_inst[1]   <= `SD ex_mem_packet[1].valid;
+				mem_wb_valid_inst[2]   <= `SD ex_mem_packet[2].valid;
 			end // if
 		end // else: !if(reset)
 	end // always
@@ -617,7 +640,7 @@ module pipeline (
 		.mem_wb_result(mem_wb_result[0]),
 		.mem_wb_dest_reg_idx(mem_wb_dest_reg_idx[0]),
 		.mem_wb_take_branch(mem_wb_take_branch[0]),
-		.mem_wb_valid_inst(mem_wb_valid_inst),
+		.mem_wb_valid_inst(mem_wb_valid_inst[0]),
 		
 		// Outputs
 		.reg_wr_data_out(wb_reg_wr_data_out[0]),
@@ -633,7 +656,7 @@ module pipeline (
 		.mem_wb_result(mem_wb_result[1]),
 		.mem_wb_dest_reg_idx(mem_wb_dest_reg_idx[1]),
 		.mem_wb_take_branch(mem_wb_take_branch[1]),
-		.mem_wb_valid_inst(mem_wb_valid_inst),
+		.mem_wb_valid_inst(mem_wb_valid_inst[1]),
 		
 		// Outputs
 		.reg_wr_data_out(wb_reg_wr_data_out[1]),
@@ -649,7 +672,7 @@ module pipeline (
 		.mem_wb_result(mem_wb_result[2]),
 		.mem_wb_dest_reg_idx(mem_wb_dest_reg_idx[2]),
 		.mem_wb_take_branch(mem_wb_take_branch[2]),
-		.mem_wb_valid_inst(mem_wb_valid_inst),
+		.mem_wb_valid_inst(mem_wb_valid_inst[2]),
 		
 		// Outputs
 		.reg_wr_data_out(wb_reg_wr_data_out[2]),
