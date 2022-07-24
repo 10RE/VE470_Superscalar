@@ -30,7 +30,7 @@ module if_stage(
 	input  [`XLEN-1:0] ex_mem_target_pc,        // target pc: use if take_branch is TRUE
 	//***************************
 	output logic [2:0][`XLEN-1:0] proc2Imem_addr,    // Address sent to Instruction memory
-	input  [63:0] Imem2proc_data_0, Imem2proc_data_1,Imem2proc_data_2,   // Data coming back from instruction-memory
+	input  [63:0] Imem2proc_data_0, Imem2proc_data_1,Imem2proc_data_2   // Data coming back from instruction-memory
 	
 	,output IF_ID_PACKET if_packet_out_0         // Output data packet from IF going to ID, see sys_defs for signal information 
     ,output IF_ID_PACKET if_packet_out_1
@@ -123,6 +123,8 @@ module if_stage(
 	       3:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_reg;
 	       default: next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_12;
 	   endcase
+	   //
+	   
 	end 
 	
 	// this mux is because the Imem gives us 64 bits not 32 bits
@@ -133,7 +135,6 @@ module if_stage(
 	//**********************************
 	assign PC_plus_8 = PC_reg + 8;
 	assign PC_plus_12 = PC_reg + 12;
-	
 	
 	// next PC is target_pc if there is a taken branch or
 	// the next sequential PC (PC+4) if no branch
@@ -148,6 +149,9 @@ module if_stage(
 	//*******???????
 	//assign if_packet_out.NPC = PC_plus_4;
 	//assign if_packet_out.PC  = PC_reg;
+	assign if_packet_out_0.NPC = if_packet_out_0.PC + 4;
+	assign if_packet_out_1.NPC = if_packet_out_1.PC + 4;
+	assign if_packet_out_2.NPC = if_packet_out_2.PC + 4;
 	// This register holds the PC value
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
