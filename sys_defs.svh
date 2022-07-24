@@ -16,6 +16,8 @@
 //
 //////////////////////////////////////////////
 
+`define WAYS				   3
+
 `define NUM_MEM_TAGS           8
 `define MEM_LATENCY_IN_CYCLES  0
 
@@ -95,7 +97,7 @@ typedef enum logic [2:0] {
 	RS_IS_MEM_1 = 3'h4,
 	RS_IS_EX_2  = 3'h5,
 	RS_IS_MEM_2 = 3'h6
-} RS_SELECT;
+} FORWARDING_TYPE;
 
 //
 // Destination register select

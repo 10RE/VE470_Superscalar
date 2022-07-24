@@ -29,13 +29,14 @@ module if_stage(
 	input         ex_mem_take_branch,      // taken-branch signal
 	input  [`XLEN-1:0] ex_mem_target_pc,        // target pc: use if take_branch is TRUE
 	//***************************
-	output logic [2:0][`XLEN-1:0] proc2Imem_addr,    // Address sent to Instruction memory
+	input EX_MEM_PACKET ex_mem_packet_0, ex_mem_packet_1, ex_mem_packet_2,
+	output logic [`XLEN-1:0] proc2Imem_addr_0, proc2Imem_addr_1, proc2Imem_addr_2,    // Address sent to Instruction memory
 	input  [63:0] Imem2proc_data_0, Imem2proc_data_1,Imem2proc_data_2   // Data coming back from instruction-memory
 	
 	,output IF_ID_PACKET if_packet_out_0         // Output data packet from IF going to ID, see sys_defs for signal information 
     ,output IF_ID_PACKET if_packet_out_1
     ,output IF_ID_PACKET if_packet_out_2
-    ,input [2:0] structural_haz
+    
     ,input [1:0] rollback
 );
 
@@ -44,6 +45,14 @@ module if_stage(
 	logic    [`XLEN-1:0] PC_plus_4, PC_plus_8, PC_plus_12;
 	logic    [`XLEN-1:0] next_PC;
 	logic           PC_enable;
+
+	wire	[2:0]structural_haz;
+	detect_structural_hazard ds_unit(
+		.ex_mem_packet_0(ex_mem_packet_0),
+		.ex_mem_packet_1(ex_mem_packet_1),
+		.ex_mem_packet_2(ex_mem_packet_2),
+		.structural_haz(structural_haz)
+	)
 	//********************* set the fetch address to be sent to the I_memory
 	logic [1:0] mem_count, invalid_way;
 	assign mem_count = structural_haz[0] + structural_haz[1] + structural_haz[2];
@@ -56,9 +65,9 @@ module if_stage(
 	always_comb begin
 	   case(structural_haz)
 	       3'b010: begin
-	           proc2Imem_addr[0] = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr[1] = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr[2] = {PC_plus_4[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_2 = {PC_plus_4[`XLEN-1:3], 3'b0};
 	           //
 	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_0[63:32] : Imem2proc_data_0[31:0];
 	           if_packet_out_1.inst  = PC_plus_4[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
@@ -68,9 +77,9 @@ module if_stage(
 			   if_packet_out_2.PC = 0;
 	       end
 	       3'b100: begin
-	           proc2Imem_addr[0] = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr[1] = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr[2] = {PC_plus_4[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_2 = {PC_plus_4[`XLEN-1:3], 3'b0};
 	           //
 	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
 	           if_packet_out_1.inst = PC_plus_4[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
@@ -80,9 +89,9 @@ module if_stage(
 			   if_packet_out_2.PC = 0;
 	       end
 	       3'b110: begin
-	           proc2Imem_addr[0] = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr[1] = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr[2] = {PC_reg[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_2 = {PC_reg[`XLEN-1:3], 3'b0};
 	           //
 	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
 	           if_packet_out_1.inst = `NOP;
