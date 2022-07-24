@@ -36,12 +36,12 @@ module superregfile(
   always_comb
     if (rda_idx_0 == `ZERO_REG)
       rda_out_0 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_0))
-      rda_out_0 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rda_idx_0))
+      rda_out_0 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rda_idx_0))
       rda_out_0 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_0))
-      rda_out_0 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rda_idx_0))
+      rda_out_0 = wr_data_0;
     else
       rda_out_0 = rda_reg_0;
 
@@ -51,12 +51,12 @@ module superregfile(
   always_comb
     if (rdb_idx_0 == `ZERO_REG)
       rdb_out_0 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rdb_idx_0))
-      rdb_out_0 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rdb_idx_0))
+      rdb_out_0 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rdb_idx_0))
       rdb_out_0 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rdb_idx_0))
-      rdb_out_0 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rdb_idx_0))
+      rdb_out_0 = wr_data_0;
     else
       rdb_out_0 = rdb_reg_0;
       
@@ -66,12 +66,12 @@ module superregfile(
   always_comb
     if (rda_idx_1 == `ZERO_REG)
       rda_out_1 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_1))
-      rda_out_1 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rda_idx_1))
+      rda_out_1 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rda_idx_1))
       rda_out_1 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_1))
-      rda_out_1 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rda_idx_1))
+      rda_out_1 = wr_data_0;
     else
       rda_out_1 = rda_reg_1;
 
@@ -81,12 +81,12 @@ module superregfile(
   always_comb
     if (rdb_idx_1 == `ZERO_REG)
       rdb_out_1 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rdb_idx_1))
-      rdb_out_1 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rdb_idx_1))
+      rdb_out_1 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rdb_idx_1))
       rdb_out_1 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rdb_idx_1))
-      rdb_out_1 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rdb_idx_1))
+      rdb_out_1 = wr_data_0;
     else
       rdb_out_1 = rdb_reg_1;
       
@@ -96,12 +96,12 @@ module superregfile(
   always_comb
     if (rda_idx_2 == `ZERO_REG)
       rda_out_2 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_2))
-      rda_out_2 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rda_idx_2))
+      rda_out_2 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rda_idx_2))
       rda_out_2 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_2))
-      rda_out_2 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rda_idx_2))
+      rda_out_2 = wr_data_0;
     else
       rda_out_2 = rda_reg_2;
 
@@ -111,12 +111,12 @@ module superregfile(
   always_comb
     if (rdb_idx_2 == `ZERO_REG)
       rdb_out_2 = 0;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_2))
-      rdb_out_2 = wr_data_0;  // internal forwarding
+    else if (wr_en_2 && (wr_idx_2 == rda_idx_2))
+      rdb_out_2 = wr_data_2;  // internal forwarding
     else if (wr_en_1 && (wr_idx_1 == rdb_idx_2))
       rdb_out_2 = wr_data_1;
-    else if (wr_en_2 && (wr_idx_2 == rdb_idx_2))
-      rdb_out_2 = wr_data_2;
+    else if (wr_en_0 && (wr_idx_0 == rdb_idx_2))
+      rdb_out_2 = wr_data_0;
     else
       rdb_out_2 = rdb_reg_2;
 
