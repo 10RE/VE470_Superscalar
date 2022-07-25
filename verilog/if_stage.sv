@@ -38,8 +38,8 @@ module if_stage(
     ,output IF_ID_PACKET if_packet_out_2
     
     ,input [1:0] rollback
-    ,output  [2:0]structural_haz
-    ,output [1:0]invalid_num
+    
+    ,output logic [1:0] invalid_way
 );
 
 	logic    [`XLEN-1:0] PC_reg;             // PC we are currently fetching
@@ -47,6 +47,8 @@ module if_stage(
 	logic    [`XLEN-1:0] PC_plus_4, PC_plus_8, PC_plus_12;
 	logic    [`XLEN-1:0] next_PC;
 	logic           PC_enable;
+	
+    wire [2:0] structural_haz;
 
 	detect_structural_hazard ds_unit(
 		.ex_mem_packet_0(ex_mem_packet_0),
@@ -55,17 +57,9 @@ module if_stage(
 		.structural_haz(structural_haz)
 	);
 	//********************* set the fetch address to be sent to the I_memory
-<<<<<<< HEAD
-	wire [1:0] mem_count, invalid_way;
-	assign mem_count = {1'b0, structural_haz[0]} + {1'b0, structural_haz[1]} + {1'b0, structural_haz[2]};
-	assign invalid_way = mem_count > rollback ? mem_count: rollback;
-	
-    assign if_packet_out_0.valid = (invalid_way < 3);
-    assign if_packet_out_1.valid = (invalid_way < 2);
-    assign if_packet_out_2.valid = invalid_way == 0;
-=======
-	logic [1:0] mem_count, invalid_way;
-	assign invalid_num = invalid_way;
+
+   
+	logic [1:0] mem_count;
 	assign mem_count = {1'b0,structural_haz[0]} + {1'b0,structural_haz[1]} + {1'b0,structural_haz[2]};
 	assign invalid_way = mem_count > rollback? mem_count: rollback;
 	
@@ -73,7 +67,7 @@ module if_stage(
     assign if_packet_out_1.valid = invalid_way<2;
     assign if_packet_out_2.valid = invalid_way == 0;
     //assign if_valid = if_packet_out_0.valid;
->>>>>>> af9fc77846501ce53fe42b64b58d972be0ee56b7
+
 	//reorder
 	always_comb begin
 	   case(structural_haz)

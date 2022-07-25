@@ -63,13 +63,9 @@ module testbench;
 	logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0];
 	logic [31:0] mem_wb_IR [`WAYS:0];
 	logic        mem_wb_valid_inst [`WAYS:0];
-<<<<<<< HEAD
-	
+
 	
     logic [1:0] rollback_out;
-
-=======
->>>>>>> af9fc77846501ce53fe42b64b58d972be0ee56b7
 
 
     //counter used for when pipeline infinite loops, forces termination
@@ -117,15 +113,10 @@ module testbench;
 		.ex_mem_valid_inst(ex_mem_valid_inst),
 		.mem_wb_NPC(mem_wb_NPC),
 		.mem_wb_IR(mem_wb_IR),
-<<<<<<< HEAD
-		.mem_wb_valid_inst(mem_wb_valid_inst)
-        ,.rollback_out(rollback_out)
-=======
 		.mem_wb_valid_inst(mem_wb_valid_inst),
-		/////////
-		.detect_structural_hazards(detect_structural_hazards),
-		.if_valid(if_valid)
->>>>>>> af9fc77846501ce53fe42b64b58d972be0ee56b7
+		
+		.rollback_out(rollback_out),
+        .invalid_way(invalid_way)
 	);
 
 

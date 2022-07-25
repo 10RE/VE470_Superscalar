@@ -81,13 +81,14 @@ module pipeline (
 	output logic [31:0] mem_wb_IR [`WAYS:0],
 	output logic        mem_wb_valid_inst [`WAYS:0]
 	
-	//************************
-	,output [2:0] detect_structural_hazards
-	,output [1:0] invalid_num
-	,output logic if_valid
+    ,output logic [1:0] rollback_out
+    
+    ,output logic [1:0] invalid_way
+
 );
 
     assign rollback_out = rollback;
+   
 
 	// Pipeline register enables
 	logic   if_id_enable, id_ex_enable, ex_mem_enable, mem_wb_enable;
@@ -229,7 +230,8 @@ module pipeline (
 	//breaking them out to support the legacy debug modes
 	
 	always_comb begin
-		for (int i = 0; i <= `WAYS; i++) begin
+	   integer i;
+		for (i = 0; i <= `WAYS; i++) begin
 			if_NPC_out[i]        = if_packet[i].NPC;
 			if_IR_out[i]         = if_packet[i].inst;
 			if_valid_inst_out[i] = if_packet[i].valid;
@@ -259,13 +261,13 @@ module pipeline (
 		.proc2Imem_addr_2(proc2Imem_addr[2]),
 		.if_packet_out_0(if_packet[0]),
 		.if_packet_out_1(if_packet[1]),
-		.if_packet_out_2(if_packet[2])
-		//***************************
-		,.structural_haz(detect_structural_hazards)
-		,.invalid_num(invalid_num)
+		.if_packet_out_2(if_packet[2]),
+		
+		.rollback(rollback),
+		
+		.invalid_way(invalid_way)
 	);
-    //******************
-    assign if_valid = if_packet[2].valid;
+
 
 //////////////////////////////////////////////////
 //                                              //
@@ -274,12 +276,15 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i <= `WAYS; i++) begin
+	   integer i;
+		for (i = 0; i <= `WAYS; i++) begin
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
-			if_id_valid_inst[i] = 1'b1; // always enabled
+			if_id_valid_inst[i] = if_id_packet[i].valid; // always enabled
 		end
 	end
+	
+	assign if_id_enable = 1;
 	
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
@@ -361,9 +366,11 @@ module pipeline (
 			id_ex_IR[i]         = id_ex_packet[i].inst;
 			id_ex_valid_inst[i] = id_ex_packet[i].valid;
 
-			id_ex_enable = 1'b1; // always enabled
+			
 		end
 	end
+	
+	assign id_ex_enable = 1'b1; // always enabled
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
 		if (reset || mem_take_branch || rollback == 3) begin
