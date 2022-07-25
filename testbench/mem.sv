@@ -150,6 +150,13 @@ module mem (
 					endcase
 				end
 			end
+
+			if((cycles_left[i]==16'd0) && waiting_for_bus[i] && !bus_filled_0) begin
+					bus_filled_0         = 1'b1;
+					next_mem2proc_tag_0  = i;
+					next_mem2proc_data_0 = loaded_data[i];
+					waiting_for_bus[i] = 1'b0;
+			end
 		end
 
 		for(int i=1;i<=`NUM_MEM_TAGS;i=i+1) begin
