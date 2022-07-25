@@ -85,7 +85,6 @@ module pipeline (
 	,output [2:0] detect_structural_hazards
 	,output [1:0] invalid_num
 	,output logic if_valid
-
 );
 
 	// Pipeline register enables

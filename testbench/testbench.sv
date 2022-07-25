@@ -113,7 +113,6 @@ module testbench;
 		.mem_wb_valid_inst(mem_wb_valid_inst),
 		/////////
 		.detect_structural_hazards(detect_structural_hazards),
-		.invalid_num(invalid_way),
 		.if_valid(if_valid)
 	);
 

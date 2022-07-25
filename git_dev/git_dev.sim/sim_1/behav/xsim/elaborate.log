@@ -4,9 +4,9 @@ Running: D:/Xilinx/Vivado/2022.1/bin/unwrapped/win64.o/xelab.exe --incr --debug 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_0' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:604]
-WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_1' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:605]
-WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_2' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:606]
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_0' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:603]
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_1' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:604]
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_2' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:605]
 Completed static elaboration
 Starting simulation data flow analysis
 Completed simulation data flow analysis
