@@ -358,7 +358,7 @@ module pipeline (
 	end
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
-		if (reset || mem_take_branch) begin
+		if (reset || mem_take_branch || rollback == 3) begin
 			id_ex_packet[0] <= `SD '{
 					{`XLEN{1'b0}},
 					{`XLEN{1'b0}}, 
@@ -422,13 +422,78 @@ module pipeline (
 					1'b0, //csr_op
 					1'b0 //valid
 				};
-		end else begin // if (reset)
-			if (id_ex_enable) begin
-				//id_ex_packet <= `SD id_packet;
-				id_ex_packet[0] <= `SD id_packet[0];
-				id_ex_packet[1] <= `SD id_packet[1];
-				id_ex_packet[2] <= `SD id_packet[2];
-			end // if
+		end else if (rollback == 2) begin
+			id_ex_packet[0] <= `SD id_packet[0];
+			id_ex_packet[1] <= `SD '{
+					{`XLEN{1'b0}},
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					OPA_IS_RS1, 
+					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
+					`NOP,
+					`ZERO_REG,
+					ALU_ADD, 
+					1'b0, //rd_mem
+					1'b0, //wr_mem
+					1'b0, //cond
+					1'b0, //uncond
+					1'b0, //halt
+					1'b0, //illegal
+					1'b0, //csr_op
+					1'b0 //valid
+				};
+			id_ex_packet[2] <= `SD '{
+					{`XLEN{1'b0}},
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					OPA_IS_RS1, 
+					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
+					`NOP,
+					`ZERO_REG,
+					ALU_ADD, 
+					1'b0, //rd_mem
+					1'b0, //wr_mem
+					1'b0, //cond
+					1'b0, //uncond
+					1'b0, //halt
+					1'b0, //illegal
+					1'b0, //csr_op
+					1'b0 //valid
+				};
+		end else if (rollback == 1) begin
+			id_ex_packet[0] <= `SD id_packet[0];
+			id_ex_packet[1] <= `SD id_packet[1];
+			id_ex_packet[2] <= `SD '{
+					{`XLEN{1'b0}},
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					{`XLEN{1'b0}}, 
+					OPA_IS_RS1, 
+					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
+					`NOP,
+					`ZERO_REG,
+					ALU_ADD, 
+					1'b0, //rd_mem
+					1'b0, //wr_mem
+					1'b0, //cond
+					1'b0, //uncond
+					1'b0, //halt
+					1'b0, //illegal
+					1'b0, //csr_op
+					1'b0 //valid
+				};
+		end else begin 
+			id_ex_packet[0] <= `SD id_packet[0];
+			id_ex_packet[1] <= `SD id_packet[1];
+			id_ex_packet[2] <= `SD id_packet[2];
 		end // else: !if(reset)
 	end // always
 
