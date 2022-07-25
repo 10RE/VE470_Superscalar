@@ -349,8 +349,8 @@ module id_stage(
 	decoder decoder_0 (
 		.if_packet(sorted_packet_0),	 
 		// Outputs
-		.opa_select(temp_opa_select_0),
-		.opb_select(temp_opb_select_0),
+		.opa_select(id_packet_internal_0.opa_select),
+		.opb_select(id_packet_internal_0.opb_select),
 		.alu_func(id_packet_internal_0.alu_func),
 		.dest_reg(dest_reg_select_0),
 		.rd_mem(id_packet_internal_0.rd_mem),
@@ -366,8 +366,8 @@ module id_stage(
 	decoder decoder_1 (
 		.if_packet(sorted_packet_1),	 
 		// Outputs
-		.opa_select(temp_opa_select_1),
-		.opb_select(temp_opb_select_1),
+		.opa_select(id_packet_internal_1.opa_select),
+		.opb_select(id_packet_internal_1.opb_select),
 		.alu_func(id_packet_internal_1.alu_func),
 		.dest_reg(dest_reg_select_1),
 		.rd_mem(id_packet_internal_1.rd_mem),
@@ -441,14 +441,11 @@ module id_stage(
 	assign id_packet_out_2 = id_packet_internal_2;
 `endif
 
-	/*
 	always_ff @(posedge clock) begin
 	   pre_rollback <= `SD rollback;
 	   hold_reg_0 <= `SD if_id_packet_in_0;
 	   hold_reg_1 <= `SD if_id_packet_in_1;
 	   hold_reg_2 <= `SD if_id_packet_in_2;
 	end
-	*/
-	
    
 endmodule // module id_stage

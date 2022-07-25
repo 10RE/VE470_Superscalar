@@ -1,0 +1,73 @@
+
+program.debug.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <.text>:
+   0:	00108093          	addi	ra,ra,1
+   4:	00210113          	addi	sp,sp,2
+   8:	00318193          	addi	gp,gp,3
+   c:	00000013          	addi	zero,zero,0
+  10:	00000013          	addi	zero,zero,0
+  14:	00000013          	addi	zero,zero,0
+  18:	00108093          	addi	ra,ra,1
+  1c:	00210113          	addi	sp,sp,2
+  20:	00108093          	addi	ra,ra,1
+  24:	00318193          	addi	gp,gp,3
+  28:	00000013          	addi	zero,zero,0
+  2c:	00000013          	addi	zero,zero,0
+  30:	00000013          	addi	zero,zero,0
+  34:	0000a083          	lw	ra,0(ra)
+  38:	0000a103          	lw	sp,0(ra)
+  3c:	0000a183          	lw	gp,0(ra)
+  40:	00000013          	addi	zero,zero,0
+  44:	00000013          	addi	zero,zero,0
+  48:	00000013          	addi	zero,zero,0
+  4c:	00108093          	addi	ra,ra,1
+  50:	00210113          	addi	sp,sp,2
+  54:	0000a083          	lw	ra,0(ra)
+  58:	00000013          	addi	zero,zero,0
+  5c:	00000013          	addi	zero,zero,0
+  60:	00000013          	addi	zero,zero,0
+  64:	00108093          	addi	ra,ra,1
+  68:	0000a083          	lw	ra,0(ra)
+  6c:	00210113          	addi	sp,sp,2
+  70:	00000013          	addi	zero,zero,0
+  74:	00000013          	addi	zero,zero,0
+  78:	00000013          	addi	zero,zero,0
+  7c:	00108093          	addi	ra,ra,1
+  80:	00110093          	addi	ra,sp,1
+  84:	00108113          	addi	sp,ra,1
+  88:	00000013          	addi	zero,zero,0
+  8c:	00000013          	addi	zero,zero,0
+  90:	00000013          	addi	zero,zero,0
+  94:	00108093          	addi	ra,ra,1
+  98:	002081b3          	add	gp,ra,sp
+  9c:	001101b3          	add	gp,sp,ra
+  a0:	00000013          	addi	zero,zero,0
+  a4:	00000013          	addi	zero,zero,0
+  a8:	00000013          	addi	zero,zero,0
+  ac:	00108093          	addi	ra,ra,1
+  b0:	004081b3          	add	gp,ra,tp
+  b4:	001201b3          	add	gp,tp,ra
+	...
+
+Disassembly of section .riscv.attributes:
+
+00000000 <.riscv.attributes>:
+   0:	1e41                	.2byte	0x1e41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
+   8:	01007663          	bgeu	zero,a6,14 <_ebss-0xec>
+   c:	0014                	.2byte	0x14
+   e:	0000                	.2byte	0x0
+  10:	7205                	.2byte	0x7205
+  12:	3376                	.2byte	0x3376
+  14:	6932                	.2byte	0x6932
+  16:	7032                	.2byte	0x7032
+  18:	5f30                	.2byte	0x5f30
+  1a:	326d                	.2byte	0x326d
+  1c:	3070                	.2byte	0x3070
+	...

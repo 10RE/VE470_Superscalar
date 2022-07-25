@@ -69,9 +69,9 @@ module testbench;
     logic [63:0] debug_counter;
 	// Instantiate the Pipeline
 	
-	wire [2:0] detect_structural_hazards;
-	wire [1:0]invalid_way;
-	wire if_valid;
+	wire [1:0] rollback_out;
+	wire [1:0] invalid_way;
+	//wire if_valid;
 	
 	pipeline core(
 		// Inputs
@@ -112,8 +112,8 @@ module testbench;
 		.mem_wb_IR(mem_wb_IR),
 		.mem_wb_valid_inst(mem_wb_valid_inst),
 		/////////
-		.detect_structural_hazards(detect_structural_hazards),
-		.if_valid(if_valid)
+		.rollback_out(rollback_out),
+		.invalid_way(invalid_way)
 	);
 
 

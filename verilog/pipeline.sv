@@ -84,10 +84,7 @@ module pipeline (
     ,output logic [1:0] rollback_out
     
     ,output logic [1:0] invalid_way
-
 );
-
-    assign rollback_out = rollback;
    
 
 	// Pipeline register enables
@@ -167,6 +164,8 @@ module pipeline (
 	logic        wb_reg_wr_en_out [`WAYS:0];
 
 	logic [1:0] rollback;
+	
+	assign rollback_out = rollback;
 	
 	always_comb begin
 		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 

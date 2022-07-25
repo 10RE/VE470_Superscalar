@@ -13,6 +13,9 @@
 `ifndef __EX_STAGE_V__
 `define __EX_STAGE_V__
 
+`include "sys_defs.svh"
+`include "ISA.svh"
+
 `timescale 1ns/100ps
 
 //
