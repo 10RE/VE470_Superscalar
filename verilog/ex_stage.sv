@@ -141,12 +141,12 @@ module signle_ex_stage(
 		forward_rs2_value=0;
 		case (id_ex_packet_in.rs2_select)
 			RS_IS_RS: 		forward_rs2_value	=	id_ex_packet_in.rs2_value;
-			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
-			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
-			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
-			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
-			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
-			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+			RS_IS_EX_0: 	forward_rs2_value	=	ex_0_result;
+			RS_IS_MEM_0:	forward_rs2_value	=	mem_0_result;
+			RS_IS_EX_1: 	forward_rs2_value	=	ex_1_result;
+			RS_IS_MEM_1:	forward_rs2_value	=	mem_1_result;
+			RS_IS_EX_2: 	forward_rs2_value	=	ex_2_result;
+			RS_IS_MEM_2:	forward_rs2_value	=	mem_2_result;
 		endcase
 	end
 
