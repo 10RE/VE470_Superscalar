@@ -64,9 +64,6 @@ module testbench;
 	logic [31:0] mem_wb_IR [`WAYS:0];
 	logic        mem_wb_valid_inst [`WAYS:0];
 
-	
-    logic [1:0] rollback_out;
-
 
     //counter used for when pipeline infinite loops, forces termination
     logic [63:0] debug_counter;
@@ -114,9 +111,9 @@ module testbench;
 		.mem_wb_NPC(mem_wb_NPC),
 		.mem_wb_IR(mem_wb_IR),
 		.mem_wb_valid_inst(mem_wb_valid_inst),
-		
-		.rollback_out(rollback_out),
-        .invalid_way(invalid_way)
+		/////////
+		.detect_structural_hazards(detect_structural_hazards),
+		.if_valid(if_valid)
 	);
 
 
@@ -213,7 +210,7 @@ module testbench;
 		
 		//Open header AFTER throwing the reset otherwise the reset state is displayed
 		print_header("                                                                            D-MEM Bus &\n");
-		print_header("Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     MEM1    |     MEM2    |     MEM3    |     EX1     |     EX2     |     EX3     |     WB1     |     WB2     |     WB3     ");
+		print_header("Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     EX1     |     EX2     |     EX3     |     MEM1    |     MEM2    |     MEM3    |     WB1     |     WB2     |     WB3     ");
 	end
 
 
