@@ -307,7 +307,7 @@ module testbench;
 						pipeline_commit_wr_idx[0],
 						pipeline_commit_wr_data[0]);
 				else
-					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[1]-4);
+					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[0]-4);
 			end
 			if(pipeline_completed_inst[1] > 0) begin
 				if(pipeline_commit_wr_en[1] && pipeline_completed_inst[1] > 0)
