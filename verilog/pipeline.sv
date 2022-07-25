@@ -39,9 +39,9 @@ module pipeline (
 	output MEM_SIZE proc2mem_size [`WAYS:0],          // data size sent to memory
 
 
-	output logic [3:0]  pipeline_completed_insts,
 	output EXCEPTION_CODE   pipeline_error_status,
 
+    output logic [3:0] pipeline_completed_inst [`WAYS:0],
 	output logic [4:0]  pipeline_commit_wr_idx [`WAYS:0],
 	output logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0],
 	output logic        pipeline_commit_wr_en [`WAYS:0],
@@ -174,14 +174,11 @@ module pipeline (
 
 	logic [1:0] rollback;
 	
-	assign rollback_out = rollback;
-	
-	always_comb begin
-		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 
-								   {3'b000, mem_wb_valid_inst[2]} + 
-								   {3'b000, mem_wb_valid_inst[2]};
-	end
 	// assign pipeline_completed_insts = {3'b0, mem_wb_valid_inst};
+	
+	assign pipeline_completed_inst[0] = {3'b000, mem_wb_valid_inst[0]};
+	assign pipeline_completed_inst[1] = {3'b000, mem_wb_valid_inst[1]};
+	assign pipeline_completed_inst[2] = {3'b000, mem_wb_valid_inst[2]};
 	
 	assign pipeline_error_status =  (mem_wb_illegal[0] | mem_wb_illegal[1] | mem_wb_illegal[2])          ? 		ILLEGAL_INST :
 	                                (mem_wb_halt[0] | mem_wb_halt[1] | mem_wb_halt[2])                ? HALTED_ON_WFI :

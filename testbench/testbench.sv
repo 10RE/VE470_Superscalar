@@ -40,9 +40,9 @@ module testbench;
 
 	MEM_SIZE     proc2mem_size [`WAYS:0];
 
-	logic  [3:0] pipeline_completed_insts;
 	EXCEPTION_CODE   pipeline_error_status;
-
+    
+    logic [3:0] pipeline_completed_inst [`WAYS:0];
 	logic  [4:0] pipeline_commit_wr_idx [`WAYS:0];
 	logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0];
 	logic        pipeline_commit_wr_en [`WAYS:0];
@@ -91,9 +91,9 @@ module testbench;
 		.proc2mem_data     (proc2mem_data),
 		.proc2mem_size     (proc2mem_size),
 		
-		.pipeline_completed_insts(pipeline_completed_insts),
 		.pipeline_error_status(pipeline_error_status),
-
+        
+        .pipeline_completed_inst(pipeline_completed_inst),
 		.pipeline_commit_wr_data(pipeline_commit_wr_data),
 		.pipeline_commit_wr_idx(pipeline_commit_wr_idx),
 		.pipeline_commit_wr_en(pipeline_commit_wr_en),
@@ -230,7 +230,7 @@ module testbench;
 			instr_count <= `SD 0;
 		end else begin
 			clock_count <= `SD (clock_count + 1);
-			instr_count <= `SD (instr_count + pipeline_completed_insts);
+			instr_count <= `SD (instr_count + pipeline_completed_inst[0] + pipeline_completed_inst[1] + pipeline_completed_inst[2]);
 		end
 	end  
 	
@@ -300,7 +300,7 @@ module testbench;
 			*/
 			
 			 // print the writeback information to writeback.out
-			if(pipeline_completed_insts>0) begin
+			if(pipeline_completed_inst[0] > 0) begin
 				if(pipeline_commit_wr_en[0])
 					$fdisplay(wb_fileno, "PC=%x, REG[%d]=%x",
 						pipeline_commit_NPC[0]-4,
@@ -308,14 +308,18 @@ module testbench;
 						pipeline_commit_wr_data[0]);
 				else
 					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[1]-4);
-				if(pipeline_commit_wr_en[1])
+			end
+			if(pipeline_completed_inst[1] > 0) begin
+				if(pipeline_commit_wr_en[1] && pipeline_completed_inst[1] > 0)
 					$fdisplay(wb_fileno, "PC=%x, REG[%d]=%x",
 						pipeline_commit_NPC[1]-4,
 						pipeline_commit_wr_idx[1],
 						pipeline_commit_wr_data[1]);
 				else
 					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[1]-4);
-				if(pipeline_commit_wr_en[2])
+			end
+			if(pipeline_completed_inst[2] > 0) begin
+				if(pipeline_commit_wr_en[2] && pipeline_completed_inst[2] > 0)
 					$fdisplay(wb_fileno, "PC=%x, REG[%d]=%x",
 						pipeline_commit_NPC[2]-4,
 						pipeline_commit_wr_idx[2],
