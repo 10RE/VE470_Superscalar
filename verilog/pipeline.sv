@@ -589,7 +589,7 @@ module pipeline (
 		mem_wb_result[2]       <= `SD 0;
 		mem_wb_valid_inst[2]   <= `SD 0;
 
-		if (mem_take_branch && mem_branch_way == 0) begin
+		if (!reset && mem_take_branch && mem_branch_way == 0) begin
 
 			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
 			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
@@ -618,7 +618,7 @@ module pipeline (
 			mem_wb_result[2]       <= `SD 0;
 			mem_wb_valid_inst[2]   <= `SD 0;
 
-		end else if (mem_take_branch && mem_branch_way == 1) begin
+		end else if (!reset && mem_take_branch && mem_branch_way == 1) begin
 
 			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
 			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
@@ -647,7 +647,7 @@ module pipeline (
 			mem_wb_result[2]       <= `SD 0;
 			mem_wb_valid_inst[2]   <= `SD 0;
 		
-		end else begin
+		end else if (!reset) begin
 			
 			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
 			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
