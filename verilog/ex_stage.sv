@@ -96,33 +96,67 @@ module brcond(// Inputs
 endmodule // brcond
 
 
-module ex_stage(
+
+// Single Ex Stage module
+module signle_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in,
+	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
 	output EX_MEM_PACKET ex_packet_out
 );
+
 	// Pass-throughs
-	assign ex_packet_out.NPC = id_ex_packet_in.NPC;
-	assign ex_packet_out.rs2_value = id_ex_packet_in.rs2_value;
-	assign ex_packet_out.rd_mem = id_ex_packet_in.rd_mem;
-	assign ex_packet_out.wr_mem = id_ex_packet_in.wr_mem;
-	assign ex_packet_out.dest_reg_idx = id_ex_packet_in.dest_reg_idx;
-	assign ex_packet_out.halt = id_ex_packet_in.halt;
-	assign ex_packet_out.illegal = id_ex_packet_in.illegal;
-	assign ex_packet_out.csr_op = id_ex_packet_in.csr_op;
-	assign ex_packet_out.valid = id_ex_packet_in.valid;
-	assign ex_packet_out.mem_size = id_ex_packet_in.inst.r.funct3;
+	assign ex_packet_out.NPC 				= id_ex_packet_in.NPC;
+	assign ex_packet_out.rs2_value 			= forward_rs2_value;
+	assign ex_packet_out.rd_mem 			= id_ex_packet_in.rd_mem;
+	assign ex_packet_out.wr_mem 			= id_ex_packet_in.wr_mem;
+	assign ex_packet_out.dest_reg_idx 		= id_ex_packet_in.dest_reg_idx;
+	assign ex_packet_out.halt 				= id_ex_packet_in.halt;
+	assign ex_packet_out.illegal 			= id_ex_packet_in.illegal;
+	assign ex_packet_out.csr_op 			= id_ex_packet_in.csr_op;
+	assign ex_packet_out.valid 				= id_ex_packet_in.valid;
+	assign ex_packet_out.mem_size 			= id_ex_packet_in.inst.r.funct3;
 
 	logic [`XLEN-1:0] opa_mux_out, opb_mux_out;
 	logic brcond_result;
+	logic [`XLEN-1:0] forward_rs1_value, forward_rs2_value;
+
+	//
+	// forward
+	//
+	always_comb begin
+		forward_rs1_value=0;
+		case (id_ex_packet_in.rs1_select)
+			RS_IS_RS: 		forward_rs1_value	=	id_ex_packet_in.rs1_value;
+			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
+			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
+			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
+			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
+			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
+			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+		endcase
+
+		forward_rs2_value=0;
+		case (id_ex_packet_in.rs2_select)
+			RS_IS_RS: 		forward_rs2_value	=	id_ex_packet_in.rs2_value;
+			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
+			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
+			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
+			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
+			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
+			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+		endcase
+	end
+
 	//
 	// ALU opA mux
 	//
 	always_comb begin
 		opa_mux_out = `XLEN'hdeadfbac;
 		case (id_ex_packet_in.opa_select)
-			OPA_IS_RS1:  opa_mux_out = id_ex_packet_in.rs1_value;
+			OPA_IS_RS1:  opa_mux_out = forward_rs1_value;
 			OPA_IS_NPC:  opa_mux_out = id_ex_packet_in.NPC;
 			OPA_IS_PC:   opa_mux_out = id_ex_packet_in.PC;
 			OPA_IS_ZERO: opa_mux_out = 0;
@@ -133,11 +167,9 @@ module ex_stage(
 	 // ALU opB mux
 	 //
 	always_comb begin
-		// Default value, Set only because the case isnt full.  If you see this
-		// value on the output of the mux you have an invalid opb_select
 		opb_mux_out = `XLEN'hfacefeed;
 		case (id_ex_packet_in.opb_select)
-			OPB_IS_RS2:   opb_mux_out = id_ex_packet_in.rs2_value;
+			OPB_IS_RS2:   opb_mux_out = forward_rs2_value;
 			OPB_IS_I_IMM: opb_mux_out = `RV32_signext_Iimm(id_ex_packet_in.inst);
 			OPB_IS_S_IMM: opb_mux_out = `RV32_signext_Simm(id_ex_packet_in.inst);
 			OPB_IS_B_IMM: opb_mux_out = `RV32_signext_Bimm(id_ex_packet_in.inst);
@@ -146,9 +178,6 @@ module ex_stage(
 		endcase 
 	end
 
-	//
-	// instantiate the ALU
-	//
 	alu alu_0 (// Inputs
 		.opa(opa_mux_out),
 		.opb(opb_mux_out),
@@ -158,10 +187,7 @@ module ex_stage(
 		.result(ex_packet_out.alu_result)
 	);
 
-	 //
-	 // instantiate the branch condition tester
-	 //
-	brcond brcond (// Inputs
+	brcond brcond_0 (// Inputs
 		.rs1(id_ex_packet_in.rs1_value), 
 		.rs2(id_ex_packet_in.rs2_value),
 		.func(id_ex_packet_in.inst.b.funct3), // inst bits to determine check
@@ -170,10 +196,89 @@ module ex_stage(
 		.cond(brcond_result)
 	);
 
-	 // ultimate "take branch" signal:
+	// ultimate "take branch" signal:
 	 //	unconditional, or conditional and the condition is true
 	assign ex_packet_out.take_branch = id_ex_packet_in.uncond_branch
 		                          | (id_ex_packet_in.cond_branch & brcond_result);
+endmodule // single_ex_stage
+
+
+module ex_stage(
+	input clock,               // system clock
+	input reset,               // system reset
+	input ID_EX_PACKET   id_ex_packet_in_0,
+	input ID_EX_PACKET   id_ex_packet_in_1,
+	input ID_EX_PACKET   id_ex_packet_in_2,
+	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	output EX_MEM_PACKET ex_packet_out_0,
+	output EX_MEM_PACKET ex_packet_out_1,
+	output EX_MEM_PACKET ex_packet_out_2,
+	output logic ex_mem_take_branch,
+	output logic [`XLEN-1:0] ex_mem_target_pc,
+	output logic [1:0] ex_mem_branch_way
+);
+	
+	signle_ex_stage ex_stage_0 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_0),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_0)
+	);
+
+	signle_ex_stage ex_stage_1 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_1),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_1)
+	);
+
+	signle_ex_stage ex_stage_2 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in_2),
+		.ex_0_result(ex_0_result), 
+		.ex_1_result(ex_1_result), 
+		.ex_2_result(ex_2_result),
+		.mem_0_result(mem_0_result), 
+		.mem_1_result(mem_1_result), 
+		.mem_2_result(mem_2_result),
+		.ex_packet_out(ex_packet_out_2)
+	);
+
+	// brcond
+	always_comb begin
+		ex_mem_take_branch = 0;
+		ex_mem_target_pc = 0;
+		ex_mem_branch_way = 0;
+		if (ex_packet_out_0.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_0.alu_result;
+			ex_mem_branch_way = 0;
+		end
+		else if (ex_packet_out_1.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_1.alu_result;
+			ex_mem_branch_way = 1;
+		end
+		else if (ex_packet_out_2.take_branch) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out_2.alu_result;
+			ex_mem_branch_way = 2;
+		end
+	end
 
 endmodule // module ex_stage
 `endif // __EX_STAGE_V__

@@ -16,6 +16,8 @@
 //
 //////////////////////////////////////////////
 
+`define WAYS				   2
+
 `define NUM_MEM_TAGS           8
 `define MEM_LATENCY_IN_CYCLES  0
 
@@ -87,6 +89,16 @@ typedef enum logic [3:0] {
 	OPB_IS_J_IMM  = 4'h5
 } ALU_OPB_SELECT;
 
+typedef enum logic [2:0] {
+	RS_IS_RS  = 3'h0,
+	RS_IS_EX_0  = 3'h1,
+	RS_IS_MEM_0 = 3'h2,
+	RS_IS_EX_1  = 3'h3,
+	RS_IS_MEM_1 = 3'h4,
+	RS_IS_EX_2  = 3'h5,
+	RS_IS_MEM_2 = 3'h6
+} RS_SELECT;
+
 //
 // Destination register select
 //
@@ -147,12 +159,14 @@ typedef enum logic [1:0] {
 	BUS_STORE    = 2'h2
 } BUS_COMMAND;
 
+`ifndef CACHE_MODE
 typedef enum logic [1:0] {
 	BYTE = 2'h0,
 	HALF = 2'h1,
 	WORD = 2'h2,
 	DOUBLE = 2'h3
 } MEM_SIZE;
+`endif
 //
 // useful boolean single-bit definitions
 //
@@ -269,6 +283,7 @@ typedef struct packed {
 	                                                                                
 	ALU_OPA_SELECT opa_select; // ALU opa mux select (ALU_OPA_xxx *)
 	ALU_OPB_SELECT opb_select; // ALU opb mux select (ALU_OPB_xxx *)
+	RS_SELECT rs1_select,rs2_select;
 	INST inst;                 // instruction
 	
 	logic [4:0] dest_reg_idx;  // destination (writeback) register index      

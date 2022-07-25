@@ -1,0 +1,7 @@
+                                                                            D-MEM Bus &
+Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     MEM1    |     MEM2    |     MEM3    |     EX1     |     EX2     |     EX3     |     WB1     |     WB2     |     WB3     
+    0:    4:invalid |   8:lui     |  12:addi    |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       
+    1:   16:invalid |  20:addi    |  24:sw      |   4:invalid |   8:lui     |  12:addi    |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       
+    2:   28:invalid |  32:beq     |  36:beq     |  16:invalid |  20:addi    |  24:sw      |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       
+    3:   40:invalid |  44:beq     |  48:sw      |  28:invalid |  32:beq     |  36:beq     |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       
+    4:   52:invalid |  56:jal     |  60:sw      |  40:invalid |  44:beq     |  48:sw      |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       |   0:-       
