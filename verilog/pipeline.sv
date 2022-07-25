@@ -275,7 +275,7 @@ module pipeline (
 	
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
-		if (reset) begin 
+		if (reset || mem_take_branch) begin 
 			if_id_packet[0].inst  <= `SD `NOP;
 			if_id_packet[0].valid <= `SD `FALSE;
             if_id_packet[0].NPC   <= `SD 0;
@@ -358,7 +358,7 @@ module pipeline (
 	end
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
-		if (reset) begin
+		if (reset || mem_take_branch) begin
 			id_ex_packet[0] <= `SD '{
 					{`XLEN{1'b0}},
 					{`XLEN{1'b0}}, 
@@ -479,7 +479,7 @@ module pipeline (
 	
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
-		if (reset) begin
+		if (reset || mem_take_branch) begin
 			ex_mem_IR[0]     <= `SD `NOP;
 			ex_mem_IR[1]     <= `SD `NOP;
 			ex_mem_IR[2]     <= `SD `NOP;
@@ -562,14 +562,43 @@ module pipeline (
 	assign mem_wb_enable = 1'b1; // always enabled
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
-		if (reset) begin
-			mem_wb_NPC[0]          <= `SD 0;
-			mem_wb_IR[0]           <= `SD `NOP;
-			mem_wb_halt[0]         <= `SD 0;
-			mem_wb_illegal[0]      <= `SD 0;
-			mem_wb_dest_reg_idx[0] <= `SD `ZERO_REG;
-			mem_wb_take_branch[0]  <= `SD 0;
-			mem_wb_result[0]       <= `SD 0;
+		mem_wb_NPC[0]          <= `SD 0;
+		mem_wb_IR[0]           <= `SD `NOP;
+		mem_wb_halt[0]         <= `SD 0;
+		mem_wb_illegal[0]      <= `SD 0;
+		mem_wb_dest_reg_idx[0] <= `SD `ZERO_REG;
+		mem_wb_take_branch[0]  <= `SD 0;
+		mem_wb_result[0]       <= `SD 0;
+		mem_wb_valid_inst[0]   <= `SD 0;
+
+		mem_wb_NPC[1]          <= `SD 0;
+		mem_wb_IR[1]           <= `SD `NOP;
+		mem_wb_halt[1]         <= `SD 0;
+		mem_wb_illegal[1]      <= `SD 0;
+		mem_wb_dest_reg_idx[1] <= `SD `ZERO_REG;
+		mem_wb_take_branch[1]  <= `SD 0;
+		mem_wb_result[1]       <= `SD 0;
+		mem_wb_valid_inst[1]   <= `SD 0;
+		
+		mem_wb_NPC[2]          <= `SD 0;
+		mem_wb_IR[2]           <= `SD `NOP;
+		mem_wb_halt[2]         <= `SD 0;
+		mem_wb_illegal[2]      <= `SD 0;
+		mem_wb_dest_reg_idx[2] <= `SD `ZERO_REG;
+		mem_wb_take_branch[2]  <= `SD 0;
+		mem_wb_result[2]       <= `SD 0;
+		mem_wb_valid_inst[2]   <= `SD 0;
+
+		if (mem_take_branch && mem_branch_way == 0) begin
+
+			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
+			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
+			mem_wb_halt[0]         <= `SD ex_mem_packet[0].halt;
+			mem_wb_illegal[0]      <= `SD ex_mem_packet[0].illegal;
+			mem_wb_dest_reg_idx[0] <= `SD ex_mem_packet[0].dest_reg_idx;
+			mem_wb_take_branch[0]  <= `SD ex_mem_packet[0].take_branch;
+			mem_wb_result[0]       <= `SD mem_result_out[0];
+			mem_wb_valid_inst[0]   <= `SD ex_mem_packet[0].valid;
 
 			mem_wb_NPC[1]          <= `SD 0;
 			mem_wb_IR[1]           <= `SD `NOP;
@@ -578,6 +607,7 @@ module pipeline (
 			mem_wb_dest_reg_idx[1] <= `SD `ZERO_REG;
 			mem_wb_take_branch[1]  <= `SD 0;
 			mem_wb_result[1]       <= `SD 0;
+			mem_wb_valid_inst[1]   <= `SD 0;
 			
 			mem_wb_NPC[2]          <= `SD 0;
 			mem_wb_IR[2]           <= `SD `NOP;
@@ -586,44 +616,67 @@ module pipeline (
 			mem_wb_dest_reg_idx[2] <= `SD `ZERO_REG;
 			mem_wb_take_branch[2]  <= `SD 0;
 			mem_wb_result[2]       <= `SD 0;
-
-			mem_wb_valid_inst[0]   <= `SD 0;
-			mem_wb_valid_inst[1]   <= `SD 0;
 			mem_wb_valid_inst[2]   <= `SD 0;
 
+		end else if (mem_take_branch && mem_branch_way == 1) begin
+
+			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
+			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
+			mem_wb_halt[0]         <= `SD ex_mem_packet[0].halt;
+			mem_wb_illegal[0]      <= `SD ex_mem_packet[0].illegal;
+			mem_wb_dest_reg_idx[0] <= `SD ex_mem_packet[0].dest_reg_idx;
+			mem_wb_take_branch[0]  <= `SD ex_mem_packet[0].take_branch;
+			mem_wb_result[0]       <= `SD mem_result_out[0];
+			mem_wb_valid_inst[0]   <= `SD ex_mem_packet[0].valid;
+
+			mem_wb_NPC[1]          <= `SD ex_mem_packet[1].NPC;
+			mem_wb_IR[1]           <= `SD ex_mem_IR[1];
+			mem_wb_halt[1]         <= `SD ex_mem_packet[1].halt;
+			mem_wb_illegal[1]      <= `SD ex_mem_packet[1].illegal;
+			mem_wb_dest_reg_idx[1] <= `SD ex_mem_packet[1].dest_reg_idx;
+			mem_wb_take_branch[1]  <= `SD ex_mem_packet[1].take_branch;
+			mem_wb_result[1]       <= `SD mem_result_out[1];
+			mem_wb_valid_inst[1]   <= `SD ex_mem_packet[1].valid;
+			
+			mem_wb_NPC[2]          <= `SD 0;
+			mem_wb_IR[2]           <= `SD `NOP;
+			mem_wb_halt[2]         <= `SD 0;
+			mem_wb_illegal[2]      <= `SD 0;
+			mem_wb_dest_reg_idx[2] <= `SD `ZERO_REG;
+			mem_wb_take_branch[2]  <= `SD 0;
+			mem_wb_result[2]       <= `SD 0;
+			mem_wb_valid_inst[2]   <= `SD 0;
+		
 		end else begin
-			if (mem_wb_enable) begin
-				// these are forwarded directly from EX/MEM latches
-				mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
-				mem_wb_IR[0]           <= `SD ex_mem_IR[0];
-				mem_wb_halt[0]         <= `SD ex_mem_packet[0].halt;
-				mem_wb_illegal[0]      <= `SD ex_mem_packet[0].illegal;
-				
-				mem_wb_dest_reg_idx[0] <= `SD ex_mem_packet[0].dest_reg_idx;
-				mem_wb_take_branch[0]  <= `SD ex_mem_packet[0].take_branch;
-				mem_wb_result[0]       <= `SD mem_result_out[0];
+			
+			mem_wb_NPC[0]          <= `SD ex_mem_packet[0].NPC;
+			mem_wb_IR[0]           <= `SD ex_mem_IR[0];
+			mem_wb_halt[0]         <= `SD ex_mem_packet[0].halt;
+			mem_wb_illegal[0]      <= `SD ex_mem_packet[0].illegal;
+			mem_wb_dest_reg_idx[0] <= `SD ex_mem_packet[0].dest_reg_idx;
+			mem_wb_take_branch[0]  <= `SD ex_mem_packet[0].take_branch;
+			mem_wb_result[0]       <= `SD mem_result_out[0];
+			mem_wb_valid_inst[0]   <= `SD ex_mem_packet[0].valid;
 
-				mem_wb_NPC[1]          <= `SD ex_mem_packet[1].NPC;
-				mem_wb_IR[1]           <= `SD ex_mem_IR[1];
-				mem_wb_halt[1]         <= `SD ex_mem_packet[1].halt;
-				mem_wb_illegal[1]      <= `SD ex_mem_packet[1].illegal;
-				mem_wb_dest_reg_idx[1] <= `SD ex_mem_packet[1].dest_reg_idx;
-				mem_wb_take_branch[1]  <= `SD ex_mem_packet[1].take_branch;
-				mem_wb_result[1]       <= `SD mem_result_out[1];
+			mem_wb_NPC[1]          <= `SD ex_mem_packet[1].NPC;
+			mem_wb_IR[1]           <= `SD ex_mem_IR[1];
+			mem_wb_halt[1]         <= `SD ex_mem_packet[1].halt;
+			mem_wb_illegal[1]      <= `SD ex_mem_packet[1].illegal;
+			mem_wb_dest_reg_idx[1] <= `SD ex_mem_packet[1].dest_reg_idx;
+			mem_wb_take_branch[1]  <= `SD ex_mem_packet[1].take_branch;
+			mem_wb_result[1]       <= `SD mem_result_out[1];
+			mem_wb_valid_inst[1]   <= `SD ex_mem_packet[1].valid;
 
-				mem_wb_NPC[2]          <= `SD ex_mem_packet[2].NPC;
-				mem_wb_IR[2]           <= `SD ex_mem_IR[2];
-				mem_wb_halt[2]         <= `SD ex_mem_packet[2].halt;
-				mem_wb_illegal[2]      <= `SD ex_mem_packet[2].illegal;
-				mem_wb_dest_reg_idx[2] <= `SD ex_mem_packet[2].dest_reg_idx;
-				mem_wb_take_branch[2]  <= `SD ex_mem_packet[2].take_branch;
-				mem_wb_result[2]       <= `SD mem_result_out[2];
-				
-				mem_wb_valid_inst[0]   <= `SD ex_mem_packet[0].valid;
-				mem_wb_valid_inst[1]   <= `SD ex_mem_packet[1].valid;
-				mem_wb_valid_inst[2]   <= `SD ex_mem_packet[2].valid;
-			end // if
-		end // else: !if(reset)
+			mem_wb_NPC[2]          <= `SD ex_mem_packet[2].NPC;
+			mem_wb_IR[2]           <= `SD ex_mem_IR[2];
+			mem_wb_halt[2]         <= `SD ex_mem_packet[2].halt;
+			mem_wb_illegal[2]      <= `SD ex_mem_packet[2].illegal;
+			mem_wb_dest_reg_idx[2] <= `SD ex_mem_packet[2].dest_reg_idx;
+			mem_wb_take_branch[2]  <= `SD ex_mem_packet[2].take_branch;
+			mem_wb_result[2]       <= `SD mem_result_out[2];
+			mem_wb_valid_inst[2]   <= `SD ex_mem_packet[2].valid;
+
+		end
 	end // always
 
 
