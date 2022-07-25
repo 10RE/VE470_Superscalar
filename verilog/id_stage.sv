@@ -252,10 +252,15 @@ module id_stage(
 	output ID_EX_PACKET id_packet_out_0,
 	output ID_EX_PACKET id_packet_out_1,
 	output ID_EX_PACKET id_packet_out_2
+	
+	`ifdef DEBUG
+	,output [`XLEN-1:0] sorted_packet_0_PC
+	`endif
 );
     
     logic [1:0] pre_rollback;
-
+    
+    
     IF_ID_PACKET hold_reg_0;
     IF_ID_PACKET hold_reg_1;
     IF_ID_PACKET hold_reg_2;
@@ -296,7 +301,9 @@ module id_stage(
     assign id_packet_internal_2.NPC  = sorted_packet_2.NPC;
     assign id_packet_internal_2.PC   = sorted_packet_2.PC;
     
-    
+    `ifdef DEBUG
+        assign sorted_packet_0_PC = packet_select_0.NPC;
+    `endif
     
     
     
@@ -383,8 +390,8 @@ module id_stage(
 	decoder decoder_2 (
 		.if_packet(sorted_packet_2),	 
 		// Outputs
-		.opa_select(temp_opa_select_2),
-		.opb_select(temp_opb_select_2),
+		.opa_select(id_packet_internal_2.opa_select),
+		.opb_select(id_packet_internal_2.opb_select),
 		.alu_func(id_packet_internal_2.alu_func),
 		.dest_reg(dest_reg_select_2),
 		.rd_mem(id_packet_internal_2.rd_mem),
@@ -419,6 +426,8 @@ module id_stage(
 		endcase
 	end
 	
+	
+	
 `ifdef USE_DETECTION
 	detection_unit detection_unit_0(
         .id_packet_0(id_packet_internal_0),
@@ -441,11 +450,14 @@ module id_stage(
 	assign id_packet_out_2 = id_packet_internal_2;
 `endif
 
+	
 	always_ff @(posedge clock) begin
 	   pre_rollback <= `SD rollback;
 	   hold_reg_0 <= `SD if_id_packet_in_0;
 	   hold_reg_1 <= `SD if_id_packet_in_1;
 	   hold_reg_2 <= `SD if_id_packet_in_2;
 	end
+	
+	
    
 endmodule // module id_stage

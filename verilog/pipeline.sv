@@ -84,8 +84,17 @@ module pipeline (
     ,output logic [1:0] rollback_out
     
     ,output logic [1:0] invalid_way
+    
+    `ifdef DEBUG
+    ,output logic [`XLEN-1:0] sorted_packet_0_PC
+    ,output logic [`XLEN-1:0] wb_data
+    `endif
 );
-   
+
+    assign rollback_out = rollback;
+   `ifdef DEBUG
+   assign wb_data = ex_packet[0].alu_result;
+   `endif
 
 	// Pipeline register enables
 	logic   if_id_enable, id_ex_enable, ex_mem_enable, mem_wb_enable;
@@ -350,6 +359,10 @@ module pipeline (
 		.id_packet_out_0(id_packet[0]),
 		.id_packet_out_1(id_packet[1]),
 		.id_packet_out_2(id_packet[2])
+		
+		`ifdef DEBUG
+		,.sorted_packet_0_PC(sorted_packet_0_PC)
+		`endif
 	);
 
 

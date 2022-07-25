@@ -69,9 +69,12 @@ module testbench;
     logic [63:0] debug_counter;
 	// Instantiate the Pipeline
 	
-	wire [1:0] rollback_out;
-	wire [1:0] invalid_way;
-	//wire if_valid;
+	wire [1:0]invalid_way;
+	
+	`ifdef DEBUG
+	wire [`XLEN-1:0] sorted_packet_0_PC;
+	wire [`XLEN-1:0] wb_data;
+	`endif
 	
 	pipeline core(
 		// Inputs
@@ -113,7 +116,12 @@ module testbench;
 		.mem_wb_valid_inst(mem_wb_valid_inst),
 		/////////
 		.rollback_out(rollback_out),
-		.invalid_way(invalid_way)
+        .invalid_way(invalid_way)
+        
+        `ifdef DEBUG
+        ,.sorted_packet_0_PC(sorted_packet_0_PC)
+        ,.wb_data(wb_data)
+        `endif
 	);
 
 
