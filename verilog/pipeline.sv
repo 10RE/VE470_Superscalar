@@ -79,7 +79,9 @@ module pipeline (
 	// Outputs from MEM/WB Pipeline Register
 	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0],
 	output logic [31:0] mem_wb_IR [`WAYS:0],
-	output logic        mem_wb_valid_inst [`WAYS:0]
+	output logic        mem_wb_valid_inst [`WAYS:0],
+	
+	logic [1:0] rollback
 
 );
 
@@ -159,7 +161,7 @@ module pipeline (
 	logic  [4:0] wb_reg_wr_idx_out [`WAYS:0];
 	logic        wb_reg_wr_en_out [`WAYS:0];
 
-	logic [1:0] rollback;
+	//logic [1:0] rollback;
 	
 	always_comb begin
 		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 
