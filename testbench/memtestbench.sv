@@ -125,19 +125,22 @@ module memtestbench;
                     proc2mem_command_0=BUS_LOAD;
                     proc2mem_size_0=size;
                     @(negedge clock);
-                    if(mem2proc_data_0!=data) correct=0;
+                    if(mem2proc_data_0==data) correct=1;
+                    else correct=0;
                 end else if (way==1)begin
                     proc2mem_addr_1=addr;
                     proc2mem_command_1=BUS_LOAD;
                     proc2mem_size_1=size;
                     @(negedge clock);
-                    if(mem2proc_data_1!=data) correct=0;
+                    if(mem2proc_data_1==data) correct=1;
+                    else correct=0;
                 end else if (way==2)begin
                     proc2mem_addr_2=addr;
                     proc2mem_command_2=BUS_LOAD;
                     proc2mem_size_2=size;
                     @(negedge clock);
-                    if(mem2proc_data_2!=data) correct=0;
+                    if(mem2proc_data_2==data) correct=1;
+                    else correct=0;
                 end
             end
 		end
@@ -331,8 +334,54 @@ module memtestbench;
             CHECK_MEM(72,k^7,DOUBLE);
         end
         //FUZZING
-
-
+        reset=0;
+        @(negedge clock);
+        reset=1;
+        proc2mem_size_0=WORD;
+        proc2mem_size_1=WORD;
+        proc2mem_size_2=WORD;
+        proc2mem_addr_0=0;
+        proc2mem_addr_1=0;
+        proc2mem_addr_2=0;
+        proc2mem_command_0=BUS_STORE;
+        proc2mem_command_1=BUS_LOAD;//5
+        proc2mem_command_2=BUS_STORE;
+        proc2mem_data_0=5;
+        proc2mem_data_1=6;
+        proc2mem_data_2=7;
+        @(negedge clock);
+        proc2mem_command_0=BUS_LOAD;//7
+        proc2mem_command_1=BUS_STORE;
+        proc2mem_command_2=BUS_LOAD;//3
+        proc2mem_data_0=2;
+        proc2mem_data_1=3;
+        proc2mem_data_2=4;
+        @(negedge clock);
+        proc2mem_command_0=BUS_STORE;
+        proc2mem_command_1=BUS_STORE;
+        proc2mem_command_2=BUS_LOAD;//9
+        proc2mem_data_0=8;
+        proc2mem_data_1=9;
+        proc2mem_data_2=1;
+        @(negedge clock);
+        proc2mem_addr_0=0;
+        proc2mem_addr_1=4;
+        proc2mem_addr_2=8;
+        proc2mem_command_0=BUS_STORE;
+        proc2mem_command_1=BUS_STORE;
+        proc2mem_command_2=BUS_STORE;
+        proc2mem_data_0=1;
+        proc2mem_data_1=2;
+        proc2mem_data_2=3;
+        @(negedge clock);
+        proc2mem_addr_0=4;
+        proc2mem_addr_1=8;
+        proc2mem_addr_2=0;
+        proc2mem_command_0=BUS_LOAD;//2
+        proc2mem_command_1=BUS_LOAD;//3
+        proc2mem_command_2=BUS_LOAD;//1
+        @(negedge clock);
+        
 	    show_mem_with_decimal(0,`MEM_64BIT_LINES - 1); 
         $finish;
 	end
