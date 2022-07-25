@@ -54,13 +54,13 @@ module if_stage(
 		.structural_haz(structural_haz)
 	);
 	//********************* set the fetch address to be sent to the I_memory
-	logic [1:0] mem_count, invalid_way;
-	assign mem_count = structural_haz[0] + structural_haz[1] + structural_haz[2];
-	assign invalid_way = mem_count > rollback? mem_count: rollback;
+	wire [1:0] mem_count, invalid_way;
+	assign mem_count = {1'b0, structural_haz[0]} + {1'b0, structural_haz[1]} + {1'b0, structural_haz[2]};
+	assign invalid_way = mem_count > rollback ? mem_count: rollback;
 	
-    assign if_packet_out_0.valid = reset? 1: (invalid_way >= 3? 0: 1);
-    assign if_packet_out_1.valid = reset? 1: (invalid_way >= 2? 0: 1);
-    assign if_packet_out_2.valid = reset? 1: (invalid_way >= 1? 0: 1);
+    assign if_packet_out_0.valid = (invalid_way < 3);
+    assign if_packet_out_1.valid = (invalid_way < 2);
+    assign if_packet_out_2.valid = invalid_way == 0;
 	//reorder
 	always_comb begin
 	   case(structural_haz)

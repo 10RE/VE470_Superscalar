@@ -79,11 +79,13 @@ module pipeline (
 	// Outputs from MEM/WB Pipeline Register
 	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0],
 	output logic [31:0] mem_wb_IR [`WAYS:0],
-	output logic        mem_wb_valid_inst [`WAYS:0],
+	output logic        mem_wb_valid_inst [`WAYS:0]
 	
-	logic [1:0] rollback
+    ,output logic [1:0] rollback_out
 
 );
+
+    assign rollback_out = rollback;
 
 	// Pipeline register enables
 	logic   if_id_enable, id_ex_enable, ex_mem_enable, mem_wb_enable;
@@ -223,13 +225,16 @@ module pipeline (
 
 	//these are debug signals that are now included in the packet,
 	//breaking them out to support the legacy debug modes
+	
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+	   integer i;
+		for (i = 0; i <= `WAYS; i++) begin
 			if_NPC_out[i]        = if_packet[i].NPC;
 			if_IR_out[i]         = if_packet[i].inst;
 			if_valid_inst_out[i] = if_packet[i].valid;
 		end
 	end
+	
 
 	if_stage if_stage_0 (
 		// Inputs
@@ -246,7 +251,6 @@ module pipeline (
 		.ex_mem_packet_1(ex_mem_packet[1]),
 		.ex_mem_packet_2(ex_mem_packet[2]),
 
-		.rollback(rollback),
 		
 		// Outputs
 		.proc2Imem_addr_0(proc2Imem_addr[0]),
@@ -254,7 +258,9 @@ module pipeline (
 		.proc2Imem_addr_2(proc2Imem_addr[2]),
 		.if_packet_out_0(if_packet[0]),
 		.if_packet_out_1(if_packet[1]),
-		.if_packet_out_2(if_packet[2])
+		.if_packet_out_2(if_packet[2]),
+		
+		.rollback(rollback)
 	);
 
 
@@ -265,13 +271,11 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+	   integer i;
+		for (i = 0; i <= `WAYS; i++) begin
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
-			if_id_valid_inst[i] = if_id_packet[i].valid;
-			if_id_enable
-			
-			 = 1'b1; // always enabled
+			if_id_valid_inst[i] = 1'b1; // always enabled
 		end
 	end
 	

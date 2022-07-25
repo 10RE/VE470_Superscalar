@@ -64,7 +64,9 @@ module testbench;
 	logic [31:0] mem_wb_IR [`WAYS:0];
 	logic        mem_wb_valid_inst [`WAYS:0];
 	
-	logic [1:0] rollback;
+	
+    logic [1:0] rollback_out;
+
 
 
     //counter used for when pipeline infinite loops, forces termination
@@ -107,8 +109,8 @@ module testbench;
 		.ex_mem_valid_inst(ex_mem_valid_inst),
 		.mem_wb_NPC(mem_wb_NPC),
 		.mem_wb_IR(mem_wb_IR),
-		.mem_wb_valid_inst(mem_wb_valid_inst),
-		.rollback(rollback)
+		.mem_wb_valid_inst(mem_wb_valid_inst)
+        ,.rollback_out(rollback_out)
 	);
 
 
