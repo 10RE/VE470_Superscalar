@@ -68,6 +68,11 @@ module testbench;
     //counter used for when pipeline infinite loops, forces termination
     logic [63:0] debug_counter;
 	// Instantiate the Pipeline
+	
+	wire [2:0] detect_structural_hazards;
+	wire [1:0]invalid_way;
+	wire if_valid;
+	
 	pipeline core(
 		// Inputs
 		.clock             (clock),
@@ -105,7 +110,11 @@ module testbench;
 		.ex_mem_valid_inst(ex_mem_valid_inst),
 		.mem_wb_NPC(mem_wb_NPC),
 		.mem_wb_IR(mem_wb_IR),
-		.mem_wb_valid_inst(mem_wb_valid_inst)	
+		.mem_wb_valid_inst(mem_wb_valid_inst),
+		/////////
+		.detect_structural_hazards(detect_structural_hazards),
+		.invalid_num(invalid_way),
+		.if_valid(if_valid)
 	);
 
 

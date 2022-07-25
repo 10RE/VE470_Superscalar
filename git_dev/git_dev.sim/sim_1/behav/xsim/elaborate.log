@@ -1,0 +1,33 @@
+Vivado Simulator v2022.1
+Copyright 1986-1999, 2001-2022 Xilinx, Inc. All Rights Reserved.
+Running: D:/Xilinx/Vivado/2022.1/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 --include D:/Xilinx/Vivado/2022.1/tps/boost_1_72_0 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -sv_root . -sc_lib libdpi.dll --snapshot testbench_behav xil_defaultlib.testbench xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_0' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:604]
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_1' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:605]
+WARNING: [VRFC 10-3091] actual bit length 64 differs from formal bit length 32 for port 'Dmem2proc_data_2' [C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/verilog/pipeline.sv:606]
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package xil_defaultlib.$unit_sys_defs_svh_3471327653
+Compiling module xil_defaultlib.detect_structural_hazard
+Compiling module xil_defaultlib.if_stage
+Compiling module xil_defaultlib.id_sorter
+Compiling module xil_defaultlib.superregfile
+Compiling module xil_defaultlib.decoder
+Compiling module xil_defaultlib.detection_unit
+Compiling module xil_defaultlib.id_stage
+Compiling module xil_defaultlib.alu
+Compiling module xil_defaultlib.brcond
+Compiling module xil_defaultlib.signle_ex_stage
+Compiling module xil_defaultlib.ex_stage
+Compiling module xil_defaultlib.single_mem_stage
+Compiling module xil_defaultlib.mem_stage
+Compiling module xil_defaultlib.wb_stage
+Compiling module xil_defaultlib.pipeline
+Compiling module xil_defaultlib.mem
+Compiling module xil_defaultlib.testbench
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot testbench_behav

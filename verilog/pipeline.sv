@@ -80,6 +80,11 @@ module pipeline (
 	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0],
 	output logic [31:0] mem_wb_IR [`WAYS:0],
 	output logic        mem_wb_valid_inst [`WAYS:0]
+	
+	//************************
+	,output [2:0] detect_structural_hazards
+	,output [1:0] invalid_num
+	,output logic if_valid
 
 );
 
@@ -222,7 +227,7 @@ module pipeline (
 	//these are debug signals that are now included in the packet,
 	//breaking them out to support the legacy debug modes
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			if_NPC_out[i]        = if_packet[i].NPC;
 			if_IR_out[i]         = if_packet[i].inst;
 			if_valid_inst_out[i] = if_packet[i].valid;
@@ -253,8 +258,12 @@ module pipeline (
 		.if_packet_out_0(if_packet[0]),
 		.if_packet_out_1(if_packet[1]),
 		.if_packet_out_2(if_packet[2])
+		//***************************
+		,.structural_haz(detect_structural_hazards)
+		,.invalid_num(invalid_num)
 	);
-
+    //******************
+    assign if_valid = if_packet[2].valid;
 
 //////////////////////////////////////////////////
 //                                              //
@@ -263,7 +272,7 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
 			if_id_valid_inst[i] = if_id_packet[i].valid;
@@ -348,7 +357,7 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			id_ex_NPC[i]        = id_ex_packet[i].NPC;
 			id_ex_IR[i]         = id_ex_packet[i].inst;
 			id_ex_valid_inst[i] = id_ex_packet[i].valid;
