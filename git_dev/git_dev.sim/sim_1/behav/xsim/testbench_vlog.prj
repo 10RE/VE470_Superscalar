@@ -1,0 +1,19 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib "C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/sys_defs.svh" "C:/Users/14991/Desktop/4summer/ECE4700J/final project/dev/VE470_Superscalar/ISA.svh" --include "../../../../../" --include "../../../../../testbench" \
+"../../../../../verilog/detection_unit.sv" \
+"../../../../../verilog/ex_stage.sv" \
+"../../../../../verilog/id_sorter.sv" \
+"../../../../../verilog/id_stage.sv" \
+"../../../../../verilog/if_stage.sv" \
+"../../../../../testbench/mem.sv" \
+"../../../../../verilog/mem_stage.sv" \
+"../../../../../verilog/pipeline.sv" \
+"../../../../../verilog/superregfile.sv" \
+"../../../../../verilog/wb_stage.sv" \
+"../../../../../testbench/testbench.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

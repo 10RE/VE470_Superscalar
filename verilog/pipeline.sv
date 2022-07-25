@@ -81,8 +81,10 @@ module pipeline (
 	output logic [31:0] mem_wb_IR [`WAYS:0],
 	output logic        mem_wb_valid_inst [`WAYS:0]
 	
-    ,output logic [1:0] rollback_out
-
+	//************************
+	,output [2:0] detect_structural_hazards
+	,output [1:0] invalid_num
+	,output logic if_valid
 );
 
     assign rollback_out = rollback;
@@ -163,7 +165,7 @@ module pipeline (
 	logic  [4:0] wb_reg_wr_idx_out [`WAYS:0];
 	logic        wb_reg_wr_en_out [`WAYS:0];
 
-	//logic [1:0] rollback;
+	logic [1:0] rollback;
 	
 	always_comb begin
 		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 
@@ -227,8 +229,7 @@ module pipeline (
 	//breaking them out to support the legacy debug modes
 	
 	always_comb begin
-	   integer i;
-		for (i = 0; i <= `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			if_NPC_out[i]        = if_packet[i].NPC;
 			if_IR_out[i]         = if_packet[i].inst;
 			if_valid_inst_out[i] = if_packet[i].valid;
@@ -258,11 +259,13 @@ module pipeline (
 		.proc2Imem_addr_2(proc2Imem_addr[2]),
 		.if_packet_out_0(if_packet[0]),
 		.if_packet_out_1(if_packet[1]),
-		.if_packet_out_2(if_packet[2]),
-		
-		.rollback(rollback)
+		.if_packet_out_2(if_packet[2])
+		//***************************
+		,.structural_haz(detect_structural_hazards)
+		,.invalid_num(invalid_num)
 	);
-
+    //******************
+    assign if_valid = if_packet[2].valid;
 
 //////////////////////////////////////////////////
 //                                              //
@@ -271,8 +274,7 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-	   integer i;
-		for (i = 0; i <= `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
 			if_id_valid_inst[i] = 1'b1; // always enabled
@@ -354,7 +356,7 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i < `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS; i++) begin
 			id_ex_NPC[i]        = id_ex_packet[i].NPC;
 			id_ex_IR[i]         = id_ex_packet[i].inst;
 			id_ex_valid_inst[i] = id_ex_packet[i].valid;
