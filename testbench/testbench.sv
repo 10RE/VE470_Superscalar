@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns/100ps
-`include "sys_defs.svh"
+
 import "DPI-C" function void print_header(string str);
 import "DPI-C" function void print_cycles();
 import "DPI-C" function void print_stage(string div, int inst, int npc, int valid_inst);
@@ -43,10 +43,10 @@ module testbench;
 	logic  [3:0] pipeline_completed_insts;
 	EXCEPTION_CODE   pipeline_error_status;
 
-	logic  [4:0] pipeline_commit_wr_idx;
-	logic [`XLEN-1:0] pipeline_commit_wr_data;
-	logic        pipeline_commit_wr_en;
-	logic [`XLEN-1:0] pipeline_commit_NPC;
+	logic  [4:0] pipeline_commit_wr_idx [`WAYS:0];
+	logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0];
+	logic        pipeline_commit_wr_en [`WAYS:0];
+	logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS:0];
 
 	logic [`XLEN-1:0] if_NPC_out [`WAYS:0];
 	logic [31:0] if_IR_out [`WAYS:0];
@@ -110,7 +110,7 @@ module testbench;
 
 
 	mem memory(
-	.clk,              // Memory clock
+	.clk(clock),              // Memory clock
 	.proc2mem_addr_0(proc2mem_addr[0]),    // address for current command
 	.proc2mem_addr_1(proc2mem_addr[1]),    // address for current command
 	.proc2mem_addr_2(proc2mem_addr[2]),    // address for current command
