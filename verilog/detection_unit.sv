@@ -34,15 +34,15 @@ module detection_unit(
 
 `ifdef DETECTION_UNIT_TEST
     assign forwarding_A = {
-        id_packet_out_0.forwarding_A,
-        id_packet_out_1.forwarding_A,
-        id_packet_out_2.forwarding_A
+        id_packet_out_0.rs1_select,
+        id_packet_out_1.rs1_select,
+        id_packet_out_2.rs1_select
     };
 
     assign forwarding_B = {
-        id_packet_out_0.forwarding_B,
-        id_packet_out_1.forwarding_B,
-        id_packet_out_2.forwarding_B
+        id_packet_out_0.rs2_select,
+        id_packet_out_1.rs2_select,
+        id_packet_out_2.rs2_select
     };
 `endif
 
@@ -304,8 +304,6 @@ module detection_unit(
     end
 
 endmodule
-<<<<<<< HEAD
+
 `endif
-=======
-`endif
->>>>>>> origin/wzh_id
+

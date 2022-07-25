@@ -245,7 +245,7 @@ module ex_stage(
 		.ex_packet_out(ex_packet_out_1)
 	);
 
-	signle_ex_stage ex_stage_0 (
+	signle_ex_stage ex_stage_2 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_2),

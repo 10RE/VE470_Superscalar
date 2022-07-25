@@ -160,10 +160,6 @@ module pipeline (
 	logic        wb_reg_wr_en_out [`WAYS:0];
 
 	logic [1:0] rollback;
-
-	logic ex_mem_take_branch;
-	logic [`XLEN-1:0] ex_mem_target_pc;
-	logic [1:0] ex_mem_branch_way;
 	
 	always_comb begin
 		pipeline_completed_insts = {3'b000, mem_wb_valid_inst[0]} + 
@@ -237,7 +233,7 @@ module pipeline (
 		// Inputs
 		.clock (clock),
 		.reset (reset),
-		.mem_wb_valid_inst(mem_wb_valid_inst),
+		.mem_wb_valid_inst(mem_wb_valid_inst[0]),
 		.ex_mem_take_branch(mem_take_branch),
 		.ex_mem_target_pc(mem_target_pc),
 		.Imem2proc_data_0(mem2proc_data[0]),
@@ -363,14 +359,15 @@ module pipeline (
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
 		if (reset) begin
-			id_ex_packet <= `SD {
-				'{
+			id_ex_packet[0] <= `SD '{
 					{`XLEN{1'b0}},
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					OPA_IS_RS1, 
 					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
 					`NOP,
 					`ZERO_REG,
 					ALU_ADD, 
@@ -382,14 +379,16 @@ module pipeline (
 					1'b0, //illegal
 					1'b0, //csr_op
 					1'b0 //valid
-				},
-				'{
+				};
+			id_ex_packet[1] <= `SD '{
 					{`XLEN{1'b0}},
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					OPA_IS_RS1, 
 					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
 					`NOP,
 					`ZERO_REG,
 					ALU_ADD, 
@@ -401,14 +400,16 @@ module pipeline (
 					1'b0, //illegal
 					1'b0, //csr_op
 					1'b0 //valid
-				},
-				'{
+				};
+			id_ex_packet[2] <= `SD '{
 					{`XLEN{1'b0}},
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					{`XLEN{1'b0}}, 
 					OPA_IS_RS1, 
 					OPB_IS_RS2, 
+					RS_IS_RS,
+					RS_IS_RS,
 					`NOP,
 					`ZERO_REG,
 					ALU_ADD, 
@@ -420,8 +421,7 @@ module pipeline (
 					1'b0, //illegal
 					1'b0, //csr_op
 					1'b0 //valid
-				}
-			};
+				};
 		end else begin // if (reset)
 			if (id_ex_enable) begin
 				//id_ex_packet <= `SD id_packet;
@@ -500,8 +500,8 @@ module pipeline (
 			// 	ex_mem_packet <= `SD ex_packet;
 			// end // if
 			ex_mem_IR[0]     <= `SD id_ex_IR[0];
-			ex_mem_IR[0]     <= `SD id_ex_IR[1];
-			ex_mem_IR[0]     <= `SD id_ex_IR[2];
+			ex_mem_IR[1]     <= `SD id_ex_IR[1];
+			ex_mem_IR[2]     <= `SD id_ex_IR[2];
 
 			ex_mem_packet[0] <= `SD ex_packet[0];
 			ex_mem_packet[1] <= `SD ex_packet[1];
@@ -550,7 +550,7 @@ module pipeline (
 
 		.proc2Dmem_data_0(proc2Dmem_data[0]),
 		.proc2Dmem_data_1(proc2Dmem_data[1]),
-		.proc2Dmem_data_2(proc2Dmem_data[2]),
+		.proc2Dmem_data_2(proc2Dmem_data[2])
 	);
 
 

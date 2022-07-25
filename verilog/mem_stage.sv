@@ -99,7 +99,7 @@ module mem_stage(
 
 	output logic [`XLEN-1:0] proc2Dmem_data_0,      // Data sent to data-memory
 	output logic [`XLEN-1:0] proc2Dmem_data_1,
-	output logic [`XLEN-1:0] proc2Dmem_data_2,
+	output logic [`XLEN-1:0] proc2Dmem_data_2
 );
 
 single_mem_stage single_mem_stage_0 (

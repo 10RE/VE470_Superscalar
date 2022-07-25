@@ -15,9 +15,9 @@ module detect_structural_hazard(
     input EX_MEM_PACKET ex_mem_packet_0, ex_mem_packet_1, ex_mem_packet_2,
     output [2:0] structural_haz
 );
-    assign structural_hazard[0] = ex_mem_packet_0.valid &(ex_mem_packet_0.wr_mem | ex_mem_packet_0.rd_mem);
-    assign structural_hazard[1] = ex_mem_packet_1.valid &(ex_mem_packet_1.wr_mem | ex_mem_packet_1.rd_mem);
-    assign structural_hazard[2] = ex_mem_packet_2.valid &(ex_mem_packet_2.wr_mem | ex_mem_packet_2.rd_mem);
+    assign structural_haz[0] = ex_mem_packet_0.valid &(ex_mem_packet_0.wr_mem | ex_mem_packet_0.rd_mem);
+    assign structural_haz[1] = ex_mem_packet_1.valid &(ex_mem_packet_1.wr_mem | ex_mem_packet_1.rd_mem);
+    assign structural_haz[2] = ex_mem_packet_2.valid &(ex_mem_packet_2.wr_mem | ex_mem_packet_2.rd_mem);
 endmodule
 
 
@@ -52,7 +52,7 @@ module if_stage(
 		.ex_mem_packet_1(ex_mem_packet_1),
 		.ex_mem_packet_2(ex_mem_packet_2),
 		.structural_haz(structural_haz)
-	)
+	);
 	//********************* set the fetch address to be sent to the I_memory
 	logic [1:0] mem_count, invalid_way;
 	assign mem_count = structural_haz[0] + structural_haz[1] + structural_haz[2];
@@ -101,9 +101,9 @@ module if_stage(
 			   if_packet_out_2.PC = 0;
 	       end
 	       3'b101: begin
-	           proc2Imem_addr[0] = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr[1] = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr[2] = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+	           proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_2 = {`XLEN'b0}; //invalid 
 	           //
 	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
 	           if_packet_out_1.inst  = `NOP;
@@ -113,9 +113,9 @@ module if_stage(
 			   if_packet_out_2.PC = 0;
 	       end
 	       default: begin
-	           proc2Imem_addr[0] = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr[1] = {PC_plus_4[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr[2] = {PC_plus_8[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_1 = {PC_plus_4[`XLEN-1:3], 3'b0};
+	           proc2Imem_addr_2 = {PC_plus_8[`XLEN-1:3], 3'b0};
 	           //
 	           if_packet_out_0.inst = structural_haz[0]? `NOP: PC_reg[2] ? Imem2proc_data_0[63:32] : Imem2proc_data_0[31:0];
 	           if_packet_out_1.inst = structural_haz[1]? `NOP: PC_plus_4[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];

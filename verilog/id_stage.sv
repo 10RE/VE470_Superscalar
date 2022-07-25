@@ -419,75 +419,6 @@ module id_stage(
 		endcase
 	end
 	
-	/*
-	// hazzard detection and control unit
-	wire ld_detection;
-	
-	assign ld_detection = id_ex_packet_in.rd_mem &&  id_packet_out.valid && id_ex_packet_in.valid;
-	
-	always_comb begin
-	   id_packet_out.stall = 1'b0;
-	   id_packet_out.opa_select = temp_opa_select;
-	   id_packet_out.opb_select = temp_opb_select;
-	   id_packet_out.brcond_opa_select = BRCOND_OPA_IS_RS1;
-	   id_packet_out.brcond_opb_select = BRCOND_OPB_IS_RS2;
-	   id_packet_out.store_opb_select  = STORE_OPB_IS_RS2;
-	   
-	   if (id_packet_out.opa_select == OPA_IS_RS1 && id_packet_out.inst.r.rs1 != `ZERO_REG) begin
-	       if (id_packet_out.inst.r.rs1 == id_ex_packet_in.dest_reg_idx && id_ex_packet_in.valid) begin
-	           id_packet_out.opa_select = OPA_IS_FROM_EX_MEM;
-	           id_packet_out.stall = ld_detection;
-	       end
-	       else if (id_packet_out.inst.r.rs1 == ex_mem_packet_in.dest_reg_idx && ex_mem_packet_in.valid) begin
-	           id_packet_out.opa_select = OPA_IS_FROM_MEM_WB;
-	       end
-	   end
-	   
-	   if (id_packet_out.opb_select == OPB_IS_RS2 && id_packet_out.inst.r.rs2 != `ZERO_REG) begin
-	       if (id_packet_out.inst.r.rs2 == id_ex_packet_in.dest_reg_idx && id_ex_packet_in.valid) begin
-	           id_packet_out.opb_select = OPB_IS_FROM_EX_MEM;
-	           id_packet_out.stall = ld_detection;
-	       end
-	       else if (id_packet_out.inst.r.rs2 == ex_mem_packet_in.dest_reg_idx && ex_mem_packet_in.valid) begin
-	           id_packet_out.opb_select = OPB_IS_FROM_MEM_WB;
-	       end
-	   end
-	   
-	   
-	   if (id_packet_out.cond_branch && id_packet_out.inst.r.rs1 != `ZERO_REG) begin
-	       if (id_packet_out.inst.r.rs1 == id_ex_packet_in.dest_reg_idx && id_ex_packet_in.valid) begin
-	           id_packet_out.brcond_opa_select = BRCOND_OPA_IS_FROM_EX_MEM;
-	           id_packet_out.stall = ld_detection;
-	       end
-	       else if (id_packet_out.inst.r.rs1 == ex_mem_packet_in.dest_reg_idx && ex_mem_packet_in.valid) begin
-	           id_packet_out.brcond_opa_select = BRCOND_OPA_IS_FROM_MEM_WB;
-	       end
-	   end
-	   
-	   if (id_packet_out.cond_branch && id_packet_out.inst.r.rs2 != `ZERO_REG) begin
-	       if (id_packet_out.inst.r.rs2 == id_ex_packet_in.dest_reg_idx && id_ex_packet_in.valid) begin
-	           id_packet_out.brcond_opb_select = BRCOND_OPB_IS_FROM_EX_MEM;
-	           id_packet_out.stall = ld_detection;
-	       end
-	       else if (id_packet_out.inst.r.rs2 == ex_mem_packet_in.dest_reg_idx && ex_mem_packet_in.valid) begin
-	           id_packet_out.brcond_opb_select = BRCOND_OPB_IS_FROM_MEM_WB;
-	       end
-	   end
-	   
-	   
-	   // Special condition for store
-	   if (id_packet_out.wr_mem && id_packet_out.inst.r.rs2 != `ZERO_REG) begin
-	       if (id_packet_out.inst.r.rs2 == id_ex_packet_in.dest_reg_idx && id_ex_packet_in.valid) begin
-	           id_packet_out.store_opb_select = STORE_OPB_IS_FROM_EX_MEM;
-	           id_packet_out.stall = ld_detection;
-	       end
-	       else if (id_packet_out.inst.r.rs2 == ex_mem_packet_in.dest_reg_idx && ex_mem_packet_in.valid) begin
-	           id_packet_out.store_opb_select = STORE_OPB_IS_FROM_MEM_WB;
-	       end
-	   end
-	   
-	end
-	*/
 `ifdef USE_DETECTION
 	detection_unit detection_unit_0(
         .id_packet_0(id_packet_internal_0),
@@ -502,7 +433,7 @@ module id_stage(
         .id_packet_out_0(id_packet_out_0),
         .id_packet_out_1(id_packet_out_1),
         .id_packet_out_2(id_packet_out_2),
-        .rollback(rollback),
+        .rollback(rollback)
     );
 `else
 	assign id_packet_out_0 = id_packet_internal_0;
