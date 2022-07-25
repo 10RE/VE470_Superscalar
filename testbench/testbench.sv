@@ -258,6 +258,30 @@ module testbench;
 			 print_stage("|", mem_wb_IR[1], mem_wb_NPC[1][31:0], {31'b0,mem_wb_valid_inst[1]});
 			 print_stage("|", mem_wb_IR[2], mem_wb_NPC[2][31:0], {31'b0,mem_wb_valid_inst[2]});
 
+			 fprintf(ppfile, "0: ");
+			 print_reg(32'b0, pipeline_commit_wr_data[0][31:0],
+				{27'b0,pipeline_commit_wr_idx[0]}, {31'b0,pipeline_commit_wr_en[0]});
+			 print_membus({30'b0,proc2mem_command[0]}, {28'b0,mem2proc_response[0]},
+				32'b0, proc2mem_addr[0][31:0],
+				proc2mem_data[0][63:32], proc2mem_data[0][31:0]);
+			 
+			 fprintf(ppfile, "	1: ");
+
+			 print_reg(32'b0, pipeline_commit_wr_data[1][31:0],
+				{27'b0,pipeline_commit_wr_idx[1]}, {31'b0,pipeline_commit_wr_en[1]});
+			 print_membus({30'b0,proc2mem_command[1]}, {28'b0,mem2proc_response[1]},
+				32'b0, proc2mem_addr[1][31:0],
+				proc2mem_data[1][63:32], proc2mem_data[1][31:0]);
+
+			 fprintf(ppfile, "	2: ");
+			 
+			 print_reg(32'b0, pipeline_commit_wr_data[2][31:0],
+				{27'b0,pipeline_commit_wr_idx[2]}, {31'b0,pipeline_commit_wr_en[2]});
+			 print_membus({30'b0,proc2mem_command[2]}, {28'b0,mem2proc_response[2]},
+				32'b0, proc2mem_addr[2][31:0],
+				proc2mem_data[2][63:32], proc2mem_data[2][31:0]);
+
+
 			 /*
 			 print_reg(32'b0, pipeline_commit_wr_data[31:0],
 				{27'b0,pipeline_commit_wr_idx}, {31'b0,pipeline_commit_wr_en});
