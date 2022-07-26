@@ -267,10 +267,6 @@ module id_stage(
     IF_ID_PACKET hold_reg_1;
     IF_ID_PACKET hold_reg_2;
     
-    IF_ID_PACKET packet_select_0;
-    IF_ID_PACKET packet_select_1;
-    IF_ID_PACKET packet_select_2;
-    
     IF_ID_PACKET sorted_packet_0;
     IF_ID_PACKET sorted_packet_1;
     IF_ID_PACKET sorted_packet_2;
@@ -279,19 +275,16 @@ module id_stage(
 	ID_EX_PACKET id_packet_internal_1;
 	ID_EX_PACKET id_packet_internal_2;
     
-    assign packet_select_0 = pre_rollback == 3 ? hold_reg_0 : if_id_packet_in_0;
-    assign packet_select_1 = pre_rollback >= 2 ? hold_reg_1 : if_id_packet_in_1;
-    assign packet_select_2 = pre_rollback >= 1 ? hold_reg_2 : if_id_packet_in_2;
 
-    id_sorter sorter (
-        .packet_in_0(packet_select_0),
-        .packet_in_1(packet_select_1),
-        .packet_in_2(packet_select_2),
-        
-        .packet_out_0(sorted_packet_0),
-        .packet_out_1(sorted_packet_1),
-        .packet_out_2(sorted_packet_2)
-    );
+	always_comb begin
+		case (pre_rollback)
+			0:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={if_id_packet_in_0,	if_id_packet_in_1,	if_id_packet_in_2};
+			1:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_2,		if_id_packet_in_0,	if_id_packet_in_1};
+			2:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_1,		hold_reg_2,			if_id_packet_in_0};
+			3:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_0,		hold_reg_1,			hold_reg_2};
+		endcase
+		
+	end
     
     assign id_packet_internal_0.inst = sorted_packet_0.inst;
     assign id_packet_internal_0.NPC  = sorted_packet_0.NPC;
@@ -303,22 +296,10 @@ module id_stage(
     assign id_packet_internal_2.NPC  = sorted_packet_2.NPC;
     assign id_packet_internal_2.PC   = sorted_packet_2.PC;
     
-    `ifdef DEBUG
-        assign sorted_packet_0_PC = packet_select_0.NPC;
-    `endif
-    
-    
-    
 	DEST_REG_SEL dest_reg_select_0; 
 	DEST_REG_SEL dest_reg_select_1; 
 	DEST_REG_SEL dest_reg_select_2; 
-	
-	ALU_OPA_SELECT temp_opa_select_0;
-	ALU_OPB_SELECT temp_opb_select_0;
-	ALU_OPA_SELECT temp_opa_select_1;
-	ALU_OPB_SELECT temp_opb_select_1;
-	ALU_OPA_SELECT temp_opa_select_2;
-	ALU_OPB_SELECT temp_opb_select_2;
+
 
 	// Instantiate the register file used by this pipeline
 	superregfile regf_0 (
