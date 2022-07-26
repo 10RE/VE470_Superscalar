@@ -351,6 +351,7 @@ module pipeline (
 		.ex_mem_packet_in_2(ex_mem_packet[2]),
 		
 		.rollback(rollback),
+		.ex_mem_take_branch(mem_take_branch),
 		
 		// Outputs
 		.id_packet_out_0(id_packet[0]),

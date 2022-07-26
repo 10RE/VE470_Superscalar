@@ -247,6 +247,8 @@ module id_stage(
 	input EX_MEM_PACKET ex_mem_packet_in_1,
 	input EX_MEM_PACKET ex_mem_packet_in_2,
 	
+	input ex_mem_take_branch,
+	
 	output [1:0] rollback,
 	
 	output ID_EX_PACKET id_packet_out_0,
@@ -452,10 +454,25 @@ module id_stage(
 
 	
 	always_ff @(posedge clock) begin
-	   pre_rollback <= `SD rollback;
-	   hold_reg_0 <= `SD if_id_packet_in_0;
-	   hold_reg_1 <= `SD if_id_packet_in_1;
-	   hold_reg_2 <= `SD if_id_packet_in_2;
+	   if (ex_mem_take_branch) 
+	       pre_rollback <= `SD 0;
+	   else
+	       pre_rollback <= `SD rollback;
+	       
+	   hold_reg_0.valid <= `SD id_packet_out_0.valid;
+	   hold_reg_0.inst  <= `SD id_packet_out_0.inst;
+	   hold_reg_0.NPC   <= `SD id_packet_out_0.NPC;
+	   hold_reg_0.PC    <= `SD id_packet_out_0.PC;
+	   
+	   hold_reg_1.valid <= `SD id_packet_out_1.valid;
+	   hold_reg_1.inst  <= `SD id_packet_out_1.inst;
+	   hold_reg_1.NPC   <= `SD id_packet_out_1.NPC;
+	   hold_reg_1.PC    <= `SD id_packet_out_1.PC;
+	   
+	   hold_reg_2.valid <= `SD id_packet_out_2.valid;
+	   hold_reg_2.inst  <= `SD id_packet_out_2.inst;
+	   hold_reg_2.NPC   <= `SD id_packet_out_2.NPC;
+	   hold_reg_2.PC    <= `SD id_packet_out_2.PC;
 	end
 	
 	
