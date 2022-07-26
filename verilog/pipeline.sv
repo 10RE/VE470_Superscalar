@@ -180,7 +180,7 @@ module pipeline (
 	assign pipeline_completed_inst[1] = {3'b000, mem_wb_valid_inst[1]};
 	assign pipeline_completed_inst[2] = {3'b000, mem_wb_valid_inst[2]};
 	
-	assign pipeline_error_status =  (mem_wb_illegal[0] | mem_wb_illegal[1] | mem_wb_illegal[2])          ? 		ILLEGAL_INST :
+	assign pipeline_error_status =  (mem_wb_illegal[0] | !mem_wb_halt[0]&mem_wb_illegal[1] | !mem_wb_halt[0]&!mem_wb_halt[1]&mem_wb_illegal[2])          ? 		ILLEGAL_INST :
 	                                (mem_wb_halt[0] | mem_wb_halt[1] | mem_wb_halt[2])                ? HALTED_ON_WFI :
 	                                ((mem2proc_response[0]==4'h0) | (mem2proc_response[1]==4'h0) | (mem2proc_response[2]==4'h0))  ? LOAD_ACCESS_FAULT :
 	                                NO_ERROR;
