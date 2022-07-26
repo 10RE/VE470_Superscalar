@@ -83,7 +83,7 @@ module if_stage(
 			   if_packet_out_1.PC = PC_plus_4;
 			   if_packet_out_2.PC = 0;
 	       end
-	       3'b100: begin
+	       3'b001: begin
 	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
 	           proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
 	           proc2Imem_addr_2 = {PC_plus_4[`XLEN-1:3], 3'b0};
@@ -95,7 +95,7 @@ module if_stage(
 			   if_packet_out_1.PC = PC_plus_4;
 			   if_packet_out_2.PC = 0;
 	       end
-	       3'b110: begin
+	       3'b011: begin
 	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
 	           proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
 	           proc2Imem_addr_2 = {PC_reg[`XLEN-1:3], 3'b0};

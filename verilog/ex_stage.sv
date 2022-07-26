@@ -263,17 +263,17 @@ module ex_stage(
 		ex_mem_take_branch = 0;
 		ex_mem_target_pc = 0;
 		ex_mem_branch_way = 0;
-		if (ex_packet_out_0.take_branch) begin
+		if (ex_packet_out_0.take_branch || ex_packet_out_0.halt) begin
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out_0.alu_result;
 			ex_mem_branch_way = 0;
 		end
-		else if (ex_packet_out_1.take_branch) begin
+		else if (ex_packet_out_1.take_branch || ex_packet_out_1.halt) begin
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out_1.alu_result;
 			ex_mem_branch_way = 1;
 		end
-		else if (ex_packet_out_2.take_branch) begin
+		else if (ex_packet_out_2.take_branch || ex_packet_out_2.halt) begin
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out_2.alu_result;
 			ex_mem_branch_way = 2;
