@@ -191,8 +191,8 @@ module signle_ex_stage(
 	);
 
 	brcond brcond_0 (// Inputs
-		.rs1(id_ex_packet_in.rs1_value), 
-		.rs2(id_ex_packet_in.rs2_value),
+		.rs1(forward_rs1_value), 
+		.rs2(forward_rs2_value),
 		.func(id_ex_packet_in.inst.b.funct3), // inst bits to determine check
 
 		// Output
