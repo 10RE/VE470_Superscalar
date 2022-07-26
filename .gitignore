@@ -1,0 +1,6 @@
+.vscode
+git_dev/
+Makefile
+program*
+test_progs/*
+bak/
