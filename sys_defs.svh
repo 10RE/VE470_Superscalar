@@ -94,9 +94,7 @@ typedef enum logic [2:0] {
 	RS_IS_EX_0  = 3'h1,
 	RS_IS_MEM_0 = 3'h2,
 	RS_IS_EX_1  = 3'h3,
-	RS_IS_MEM_1 = 3'h4,
-	RS_IS_EX_2  = 3'h5,
-	RS_IS_MEM_2 = 3'h6
+	RS_IS_MEM_1 = 3'h4
 } RS_SELECT;
 
 //

@@ -98,12 +98,12 @@ endmodule // brcond
 
 
 // Single Ex Stage module
-module signle_ex_stage(
+module single_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in,
-	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
-	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	input [`XLEN-1:0] ex_0_result, ex_1_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result,
 	output EX_MEM_PACKET ex_packet_out
 );
 
@@ -134,8 +134,6 @@ module signle_ex_stage(
 			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
 			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
 			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
-			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
-			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
 		endcase
 
 		forward_rs2_value=0;
@@ -145,8 +143,6 @@ module signle_ex_stage(
 			RS_IS_MEM_0:	forward_rs2_value	=	mem_0_result;
 			RS_IS_EX_1: 	forward_rs2_value	=	ex_1_result;
 			RS_IS_MEM_1:	forward_rs2_value	=	mem_1_result;
-			RS_IS_EX_2: 	forward_rs2_value	=	ex_2_result;
-			RS_IS_MEM_2:	forward_rs2_value	=	mem_2_result;
 		endcase
 	end
 
@@ -208,54 +204,35 @@ module ex_stage(
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in_0,
 	input ID_EX_PACKET   id_ex_packet_in_1,
-	input ID_EX_PACKET   id_ex_packet_in_2,
-	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
-	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	input [`XLEN-1:0] ex_0_result, ex_1_result,
+	input [`XLEN-1:0] mem_0_result, mem_1_result,
 	output EX_MEM_PACKET ex_packet_out_0,
 	output EX_MEM_PACKET ex_packet_out_1,
-	output EX_MEM_PACKET ex_packet_out_2,
 	output logic ex_mem_take_branch,
 	output logic [`XLEN-1:0] ex_mem_target_pc,
 	output logic [1:0] ex_mem_branch_way
 );
 	
-	signle_ex_stage ex_stage_0 (
+	single_ex_stage ex_stage_0 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_0),
 		.ex_0_result(ex_0_result), 
 		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
 		.mem_0_result(mem_0_result), 
 		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
 		.ex_packet_out(ex_packet_out_0)
 	);
 
-	signle_ex_stage ex_stage_1 (
+	single_ex_stage ex_stage_1 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_1),
 		.ex_0_result(ex_0_result), 
 		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
 		.mem_0_result(mem_0_result), 
-		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
+		.mem_1_result(mem_1_result),
 		.ex_packet_out(ex_packet_out_1)
-	);
-
-	signle_ex_stage ex_stage_2 (
-		.clock(clock),               
-		.reset(reset),               
-		.id_ex_packet_in(id_ex_packet_in_2),
-		.ex_0_result(ex_0_result), 
-		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
-		.mem_0_result(mem_0_result), 
-		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
-		.ex_packet_out(ex_packet_out_2)
 	);
 
 	// brcond
@@ -272,11 +249,6 @@ module ex_stage(
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out_1.alu_result;
 			ex_mem_branch_way = 1;
-		end
-		else if (ex_packet_out_2.take_branch || ex_packet_out_2.halt) begin
-			ex_mem_take_branch = 1;
-			ex_mem_target_pc = ex_packet_out_2.alu_result;
-			ex_mem_branch_way = 2;
 		end
 	end
 
