@@ -30,39 +30,39 @@ module testbench;
 	logic [31:0] instr_count;
 	int          wb_fileno;
 	
-	logic [1:0]  proc2mem_command [`WAYS:0];
-	logic [`XLEN-1:0] proc2mem_addr [`WAYS:0];
-	logic [63:0] proc2mem_data [`WAYS:0];
+	logic [1:0]  proc2mem_command [`WAYS-1:0];
+	logic [`XLEN-1:0] proc2mem_addr [`WAYS-1:0];
+	logic [63:0] proc2mem_data [`WAYS-1:0];
 
-	logic  [3:0] mem2proc_response [`WAYS:0];
-	logic [63:0] mem2proc_data [`WAYS:0];
-	logic  [3:0] mem2proc_tag [`WAYS:0];
+	logic  [3:0] mem2proc_response [`WAYS-1:0];
+	logic [63:0] mem2proc_data [`WAYS-1:0];
+	logic  [3:0] mem2proc_tag [`WAYS-1:0];
 
-	MEM_SIZE     proc2mem_size [`WAYS:0];
+	MEM_SIZE     proc2mem_size [`WAYS-1:0];
 
 	EXCEPTION_CODE   pipeline_error_status;
     
-    logic [3:0] pipeline_completed_inst [`WAYS:0];
-	logic  [4:0] pipeline_commit_wr_idx [`WAYS:0];
-	logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0];
-	logic        pipeline_commit_wr_en [`WAYS:0];
-	logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS:0];
+    logic [3:0] pipeline_completed_inst [`WAYS-1:0];
+	logic  [4:0] pipeline_commit_wr_idx [`WAYS-1:0];
+	logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS-1:0];
+	logic        pipeline_commit_wr_en [`WAYS-1:0];
+	logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS-1:0];
 
-	logic [`XLEN-1:0] if_NPC_out [`WAYS:0];
-	logic [31:0] if_IR_out [`WAYS:0];
-	logic        if_valid_inst_out [`WAYS:0];
-	logic [`XLEN-1:0] if_id_NPC [`WAYS:0];
-	logic [31:0] if_id_IR [`WAYS:0];
-	logic        if_id_valid_inst [`WAYS:0];
-	logic [`XLEN-1:0] id_ex_NPC [`WAYS:0];
-	logic [31:0] id_ex_IR [`WAYS:0];
-	logic        id_ex_valid_inst [`WAYS:0];
-	logic [`XLEN-1:0] ex_mem_NPC [`WAYS:0];
-	logic [31:0] ex_mem_IR [`WAYS:0];
-	logic        ex_mem_valid_inst [`WAYS:0];
-	logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0];
-	logic [31:0] mem_wb_IR [`WAYS:0];
-	logic        mem_wb_valid_inst [`WAYS:0];
+	logic [`XLEN-1:0] if_NPC_out [`WAYS-1:0];
+	logic [31:0] if_IR_out [`WAYS-1:0];
+	logic        if_valid_inst_out [`WAYS-1:0];
+	logic [`XLEN-1:0] if_id_NPC [`WAYS-1:0];
+	logic [31:0] if_id_IR [`WAYS-1:0];
+	logic        if_id_valid_inst [`WAYS-1:0];
+	logic [`XLEN-1:0] id_ex_NPC [`WAYS-1:0];
+	logic [31:0] id_ex_IR [`WAYS-1:0];
+	logic        id_ex_valid_inst [`WAYS-1:0];
+	logic [`XLEN-1:0] ex_mem_NPC [`WAYS-1:0];
+	logic [31:0] ex_mem_IR [`WAYS-1:0];
+	logic        ex_mem_valid_inst [`WAYS-1:0];
+	logic [`XLEN-1:0] mem_wb_NPC [`WAYS-1:0];
+	logic [31:0] mem_wb_IR [`WAYS-1:0];
+	logic        mem_wb_valid_inst [`WAYS-1:0];
 
 	
     logic [1:0] rollback_out;
@@ -221,7 +221,7 @@ module testbench;
 		
 		//Open header AFTER throwing the reset otherwise the reset state is displayed
 		print_header("                                                                            D-MEM Bus &\n");
-		print_header("Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     MEM1    |     MEM2    |     MEM3    |     EX1     |     EX2     |     EX3     |     WB1     |     WB2     |     WB3     ");
+		print_header("Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     EX1     |     EX2     |     EX3     |     MEM1    |     MEM2    |     MEM3    |     WB1     |     WB2     |     WB3     ");
 	end
 
 

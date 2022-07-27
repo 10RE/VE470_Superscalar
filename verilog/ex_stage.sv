@@ -98,7 +98,7 @@ endmodule // brcond
 
 
 // Single Ex Stage module
-module signle_ex_stage(
+module single_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in,
@@ -219,7 +219,7 @@ module ex_stage(
 	output logic [1:0] ex_mem_branch_way
 );
 	
-	signle_ex_stage ex_stage_0 (
+	single_ex_stage ex_stage_0 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_0),
@@ -232,7 +232,7 @@ module ex_stage(
 		.ex_packet_out(ex_packet_out_0)
 	);
 
-	signle_ex_stage ex_stage_1 (
+	single_ex_stage ex_stage_1 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_1),
@@ -245,7 +245,7 @@ module ex_stage(
 		.ex_packet_out(ex_packet_out_1)
 	);
 
-	signle_ex_stage ex_stage_2 (
+	single_ex_stage ex_stage_2 (
 		.clock(clock),               
 		.reset(reset),               
 		.id_ex_packet_in(id_ex_packet_in_2),
