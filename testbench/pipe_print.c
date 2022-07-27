@@ -149,7 +149,7 @@ void print_stage(char* div, int inst, int npc, int valid_inst)
   }
 
   if (ppfile != NULL)
-    fprintf(ppfile, "%s%4d:%-8s", div, npc, str);
+    fprintf(ppfile, "%s%4x:%-8s", div, npc, str);
 }
 
 void print_close()

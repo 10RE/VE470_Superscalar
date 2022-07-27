@@ -16,7 +16,7 @@
 //
 //////////////////////////////////////////////
 
-`define WAYS				   2
+`define WAYS				   3
 `define DEBUG
 `define NUM_MEM_TAGS           8
 `define MEM_LATENCY_IN_CYCLES  0

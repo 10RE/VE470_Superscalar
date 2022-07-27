@@ -18,34 +18,34 @@ module pipeline (
 
 	input         clock,                    // System clock
 	input         reset,                    // System reset
-	input [3:0]   mem2proc_response [`WAYS:0],        // Tag from memory about current request
+	input [3:0]   mem2proc_response [`WAYS-1:0],        // Tag from memory about current request
 
 	
-	input [63:0]  mem2proc_data [`WAYS:0],            // Data coming back from memory
+	input [63:0]  mem2proc_data [`WAYS-1:0],            // Data coming back from memory
 
 	
-	input [3:0]   mem2proc_tag [`WAYS:0],              // Tag from memory about current reply
+	input [3:0]   mem2proc_tag [`WAYS-1:0],              // Tag from memory about current reply
 
 	
-	output logic [1:0]  proc2mem_command [`WAYS:0],    // command sent to memory
+	output logic [1:0]  proc2mem_command [`WAYS-1:0],    // command sent to memory
 
 	
-	output logic [`XLEN-1:0] proc2mem_addr [`WAYS:0],      // Address sent to memory
+	output logic [`XLEN-1:0] proc2mem_addr [`WAYS-1:0],      // Address sent to memory
 
 	
-	output logic [63:0] proc2mem_data [`WAYS:0],      // Data sent to memory
+	output logic [63:0] proc2mem_data [`WAYS-1:0],      // Data sent to memory
 
 	
-	output MEM_SIZE proc2mem_size [`WAYS:0],          // data size sent to memory
+	output MEM_SIZE proc2mem_size [`WAYS-1:0],          // data size sent to memory
 
 
 	output EXCEPTION_CODE   pipeline_error_status,
 
-    output logic [3:0] pipeline_completed_inst [`WAYS:0],
-	output logic [4:0]  pipeline_commit_wr_idx [`WAYS:0],
-	output logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS:0],
-	output logic        pipeline_commit_wr_en [`WAYS:0],
-	output logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS:0],
+    output logic [3:0] pipeline_completed_inst [`WAYS-1:0],
+	output logic [4:0]  pipeline_commit_wr_idx [`WAYS-1:0],
+	output logic [`XLEN-1:0] pipeline_commit_wr_data [`WAYS-1:0],
+	output logic        pipeline_commit_wr_en [`WAYS-1:0],
+	output logic [`XLEN-1:0] pipeline_commit_NPC [`WAYS-1:0],
 	
 	
 	// testing hooks (these must be exported so we can test
@@ -54,32 +54,32 @@ module pipeline (
 	
 	
 	// Outputs from IF-Stage 
-	output logic [`XLEN-1:0] if_NPC_out [`WAYS:0],
-	output logic [31:0] if_IR_out [`WAYS:0],
-	output logic        if_valid_inst_out [`WAYS:0],
+	output logic [`XLEN-1:0] if_NPC_out [`WAYS-1:0],
+	output logic [31:0] if_IR_out [`WAYS-1:0],
+	output logic        if_valid_inst_out [`WAYS-1:0],
 	
 	// Outputs from IF/ID Pipeline Register
-	output logic [`XLEN-1:0] if_id_NPC [`WAYS:0],
-	output logic [31:0] if_id_IR [`WAYS:0],
-	output logic        if_id_valid_inst [`WAYS:0],
+	output logic [`XLEN-1:0] if_id_NPC [`WAYS-1:0],
+	output logic [31:0] if_id_IR [`WAYS-1:0],
+	output logic        if_id_valid_inst [`WAYS-1:0],
 	
 	
 	// Outputs from ID/EX Pipeline Register
-	output logic [`XLEN-1:0] id_ex_NPC [`WAYS:0],
-	output logic [31:0] id_ex_IR [`WAYS:0],
-	output logic        id_ex_valid_inst [`WAYS:0],
+	output logic [`XLEN-1:0] id_ex_NPC [`WAYS-1:0],
+	output logic [31:0] id_ex_IR [`WAYS-1:0],
+	output logic        id_ex_valid_inst [`WAYS-1:0],
 	
 	
 	// Outputs from EX/MEM Pipeline Register
-	output logic [`XLEN-1:0] ex_mem_NPC [`WAYS:0],
-	output logic [31:0] ex_mem_IR [`WAYS:0],
-	output logic        ex_mem_valid_inst [`WAYS:0],
+	output logic [`XLEN-1:0] ex_mem_NPC [`WAYS-1:0],
+	output logic [31:0] ex_mem_IR [`WAYS-1:0],
+	output logic        ex_mem_valid_inst [`WAYS-1:0],
 	
 	
 	// Outputs from MEM/WB Pipeline Register
-	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS:0],
-	output logic [31:0] mem_wb_IR [`WAYS:0],
-	output logic        mem_wb_valid_inst [`WAYS:0]
+	output logic [`XLEN-1:0] mem_wb_NPC [`WAYS-1:0],
+	output logic [31:0] mem_wb_IR [`WAYS-1:0],
+	output logic        mem_wb_valid_inst [`WAYS-1:0]
 	
     ,output logic [1:0] rollback_out
     
@@ -100,30 +100,30 @@ module pipeline (
 	logic   if_id_enable, id_ex_enable, ex_mem_enable, mem_wb_enable;
 	
 	// Outputs from IF-Stage
-	logic [`XLEN-1:0] proc2Imem_addr [`WAYS:0];
+	logic [`XLEN-1:0] proc2Imem_addr [`WAYS-1:0];
 
 
-	IF_ID_PACKET if_packet [`WAYS:0];
+	IF_ID_PACKET if_packet [`WAYS-1:0];
 
 
 	// Outputs from IF/ID Pipeline Register
-	IF_ID_PACKET if_id_packet [`WAYS:0];
+	IF_ID_PACKET if_id_packet [`WAYS-1:0];
 
 
 	// Outputs from ID stage
-	ID_EX_PACKET id_packet [`WAYS:0];
+	ID_EX_PACKET id_packet [`WAYS-1:0];
 
 
 	// Outputs from ID/EX Pipeline Register
-	ID_EX_PACKET id_ex_packet [`WAYS:0];
+	ID_EX_PACKET id_ex_packet [`WAYS-1:0];
 
 	
 	// Outputs from EX-Stage
-	EX_MEM_PACKET ex_packet [`WAYS:0];
+	EX_MEM_PACKET ex_packet [`WAYS-1:0];
 
 
 	// Outputs from EX/MEM Pipeline Register
-	EX_MEM_PACKET ex_mem_packet [`WAYS:0];
+	EX_MEM_PACKET ex_mem_packet [`WAYS-1:0];
 
 	logic ex_mem_take_branch;
 	logic [`XLEN-1:0] ex_mem_target_pc;
@@ -136,41 +136,41 @@ module pipeline (
 	logic [1:0] mem_branch_way;
 
 
-	logic [`XLEN-1:0] mem_result_out [`WAYS:0];
+	logic [`XLEN-1:0] mem_result_out [`WAYS-1:0];
 
 
-	logic [`XLEN-1:0] proc2Dmem_addr [`WAYS:0];
+	logic [`XLEN-1:0] proc2Dmem_addr [`WAYS-1:0];
 
 
-	logic [`XLEN-1:0] proc2Dmem_data [`WAYS:0];
+	logic [`XLEN-1:0] proc2Dmem_data [`WAYS-1:0];
 
 
-	logic [1:0]  proc2Dmem_command [`WAYS:0];
+	logic [1:0]  proc2Dmem_command [`WAYS-1:0];
 
 
-	MEM_SIZE proc2Dmem_size [`WAYS:0];
+	MEM_SIZE proc2Dmem_size [`WAYS-1:0];
 
 
 	// Outputs from MEM/WB Pipeline Register
-	logic        mem_wb_halt [`WAYS:0];
+	logic        mem_wb_halt [`WAYS-1:0];
 
 
-	logic        mem_wb_illegal [`WAYS:0];
-
-	
-	logic  [4:0] mem_wb_dest_reg_idx [`WAYS:0];
-
-
-	logic [`XLEN-1:0] mem_wb_result [`WAYS:0];
+	logic        mem_wb_illegal [`WAYS-1:0];
 
 	
-	logic        mem_wb_take_branch [`WAYS:0];
+	logic  [4:0] mem_wb_dest_reg_idx [`WAYS-1:0];
+
+
+	logic [`XLEN-1:0] mem_wb_result [`WAYS-1:0];
+
+	
+	logic        mem_wb_take_branch [`WAYS-1:0];
 
 	
 	// Outputs from WB-Stage  (These loop back to the register file in ID)
-	logic [`XLEN-1:0] wb_reg_wr_data_out [`WAYS:0];
-	logic  [4:0] wb_reg_wr_idx_out [`WAYS:0];
-	logic        wb_reg_wr_en_out [`WAYS:0];
+	logic [`XLEN-1:0] wb_reg_wr_data_out [`WAYS-1:0];
+	logic  [4:0] wb_reg_wr_idx_out [`WAYS-1:0];
+	logic        wb_reg_wr_en_out [`WAYS-1:0];
 
 	logic [1:0] rollback;
 	
@@ -236,7 +236,7 @@ module pipeline (
 	
 	always_comb begin
 	   integer i;
-		for (i = 0; i <= `WAYS; i++) begin
+		for (i = 0; i <= `WAYS-1; i++) begin
 			if_NPC_out[i]        = if_packet[i].NPC;
 			if_IR_out[i]         = if_packet[i].inst;
 			if_valid_inst_out[i] = if_packet[i].valid;
@@ -282,7 +282,7 @@ module pipeline (
 
 	always_comb begin
 	   integer i;
-		for (i = 0; i <= `WAYS; i++) begin
+		for (i = 0; i <= `WAYS-1; i++) begin
 			if_id_NPC[i]        = if_id_packet[i].NPC;
 			if_id_IR[i]         = if_id_packet[i].inst;
 			if_id_valid_inst[i] = if_id_packet[i].valid; // always enabled
@@ -371,7 +371,7 @@ module pipeline (
 //////////////////////////////////////////////////
 
 	always_comb begin
-		for (int i = 0; i <= `WAYS; i++) begin
+		for (int i = 0; i <= `WAYS-1; i++) begin
 			id_ex_NPC[i]        = id_ex_packet[i].NPC;
 			id_ex_IR[i]         = id_ex_packet[i].inst;
 			id_ex_valid_inst[i] = id_ex_packet[i].valid;
