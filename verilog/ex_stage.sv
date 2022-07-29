@@ -31,6 +31,8 @@ module alu(
 	output logic [`XLEN-1:0] result
 );
 	wire signed [`XLEN-1:0] signed_opa, signed_opb;
+	wire signed [`XLEN-1:0] signed_div, signed_remainder;
+	wire 		[`XLEN-1:0] unsigned_div, unsigned_remainder;
 	wire signed [2*`XLEN-1:0] signed_mul, mixed_mul;
 	wire        [2*`XLEN-1:0] unsigned_mul;
 	assign signed_opa = opa;
@@ -38,6 +40,14 @@ module alu(
 	assign signed_mul = signed_opa * signed_opb;
 	assign unsigned_mul = opa * opb;
 	assign mixed_mul = signed_opa * opb;
+	assign signed_div = (signed_opb == 0) ? `XLEN'hffffffff : 
+										    signed_opa / signed_opb;
+	assign unsigned_div = (opb == 0) ? `XLEN'hffffffff : 
+									   opa / opb;
+	assign signed_remainder = (signed_opb == 0) ? signed_opa : 
+										          signed_opa % signed_opb;
+	assign unsigned_remainder = (opb == 0) ? opa : 
+										     opa % opb;
 
 	always_comb begin
 		case (func)
@@ -55,6 +65,10 @@ module alu(
 			ALU_MULH:     result = signed_mul[2*`XLEN-1:`XLEN];
 			ALU_MULHSU:   result = mixed_mul[2*`XLEN-1:`XLEN];
 			ALU_MULHU:    result = unsigned_mul[2*`XLEN-1:`XLEN];
+			ALU_DIV:      result = signed_div;
+			ALU_DIVU:     result = unsigned_div;
+			ALU_REM:      result = signed_remainder;
+			ALU_REMU:     result = unsigned_remainder;
 
 			default:      result = `XLEN'hfacebeec;  // here to prevent latches
 		endcase

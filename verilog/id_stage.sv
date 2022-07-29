@@ -208,6 +208,22 @@ module decoder(
 					dest_reg   = DEST_RD;
 					alu_func   = ALU_MULHU;
 				end
+				`RV32_DIV: begin
+					dest_reg   = DEST_RD;
+					alu_func   = ALU_DIV;
+				end
+				`RV32_DIVU: begin
+					dest_reg   = DEST_RD;
+					alu_func   = ALU_DIVU;
+				end
+				`RV32_REM: begin
+					dest_reg   = DEST_RD;
+					alu_func   = ALU_REM;
+				end
+				`RV32_REMU: begin
+					dest_reg   = DEST_RD;
+					alu_func   = ALU_REMU;
+				end
 				`RV32_CSRRW, `RV32_CSRRS, `RV32_CSRRC: begin
 					csr_op = `TRUE;
 				end
