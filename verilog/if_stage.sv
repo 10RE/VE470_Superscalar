@@ -47,6 +47,10 @@ module if_stage(
 	logic    [`XLEN-1:0] PC_plus_4, PC_plus_8, PC_plus_12;
 	logic    [`XLEN-1:0] next_PC;
 	logic           PC_enable;
+
+	logic 			invalid_way_pre;
+	logic           PC_IS_LOWER;
+	logic    [`XLEN-1:0] PC_plus_next;
 	
     wire [2:0] structural_haz;
 
@@ -61,84 +65,124 @@ module if_stage(
    
 	logic [1:0] mem_count;
 	assign mem_count = {1'b0,structural_haz[0]} + {1'b0,structural_haz[1]} + {1'b0,structural_haz[2]};
-	assign invalid_way = mem_count > rollback? mem_count: rollback;
 	
-    assign if_packet_out_0.valid = invalid_way<3;
-    assign if_packet_out_1.valid = invalid_way<2;
+	always_comb begin
+		if (mem_count == 0 && PC_IS_LOWER) begin
+			invalid_way = rollback;
+		end
+		else if (mem_count == 3) begin
+            invalid_way = 3;
+        end
+		else begin
+			invalid_way = (mem_count - PC_IS_LOWER > rollback) ? (mem_count - PC_IS_LOWER) : rollback;
+		end
+	end
+
+	//assign invalid_way_pre = mem_count > rollback ? mem_count : rollback;
+	//assign invalid_way = PC_IS_LOWER ? ((invalid_way_pre == 0) ? 0 : (invalid_way_pre - 1)) : 
+	//								   invalid_way_pre;
+	
+    assign if_packet_out_0.valid = invalid_way < 3;
+    assign if_packet_out_1.valid = invalid_way < 2;
     assign if_packet_out_2.valid = invalid_way == 0;
     //assign if_valid = if_packet_out_0.valid;
 
+	assign PC_IS_LOWER = (PC_reg[2] == 0);
+	assign PC_plus_next = PC_IS_LOWER ? PC_plus_8 : PC_plus_4;
+
 	//reorder
 	always_comb begin
-	   case(structural_haz)
-	       3'b010: begin
-	           proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr_2 = {PC_plus_4[`XLEN-1:3], 3'b0};
-	           //
-	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_0[63:32] : Imem2proc_data_0[31:0];
-	           if_packet_out_1.inst  = PC_plus_4[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
-			   if_packet_out_2.inst = `NOP;
-			   if_packet_out_0.PC = PC_reg;
-			   if_packet_out_1.PC = PC_plus_4;
-			   if_packet_out_2.PC = 0;
-	       end
-	       3'b001: begin
-	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr_2 = {PC_plus_4[`XLEN-1:3], 3'b0};
-	           //
-	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
-	           if_packet_out_1.inst = PC_plus_4[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
-			   if_packet_out_2.inst = `NOP;
-			   if_packet_out_0.PC = PC_reg;
-			   if_packet_out_1.PC = PC_plus_4;
-			   if_packet_out_2.PC = 0;
-	       end
-	       3'b011: begin
-	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr_2 = {PC_reg[`XLEN-1:3], 3'b0};
-	           //
-	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
-	           if_packet_out_1.inst = `NOP;
-			   if_packet_out_2.inst = `NOP;
-			   if_packet_out_0.PC = PC_reg;
-			   if_packet_out_1.PC = 0;
-			   if_packet_out_2.PC = 0;
-	       end
-	       3'b101: begin
-	           proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
-	           proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr_2 = {`XLEN'b0}; //invalid 
-	           //
-	           if_packet_out_0.inst = PC_reg[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
-	           if_packet_out_1.inst  = `NOP;
-			   if_packet_out_2.inst = `NOP;
-			   if_packet_out_0.PC = PC_reg;
-			   if_packet_out_1.PC = 0;
-			   if_packet_out_2.PC = 0;
-	       end
-	       default: begin
-	           proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr_1 = {PC_plus_4[`XLEN-1:3], 3'b0};
-	           proc2Imem_addr_2 = {PC_plus_8[`XLEN-1:3], 3'b0};
-	           //
-	           if_packet_out_0.inst = structural_haz[0]? `NOP: PC_reg[2] ? Imem2proc_data_0[63:32] : Imem2proc_data_0[31:0];
-	           if_packet_out_1.inst = structural_haz[1]? `NOP: PC_plus_4[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
-	           if_packet_out_2.inst = structural_haz[2]? `NOP: PC_plus_8[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
-	           if_packet_out_0.PC = structural_haz[0]? 0: PC_reg;
-			   if_packet_out_1.PC = structural_haz[1]? 0: PC_plus_4;
-			   if_packet_out_2.PC = structural_haz[2]? 0: PC_plus_8;
-	       end
-	   endcase
-	   //next PC
-	   case(invalid_way)
-	       1:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_8;
-	       2:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_4;
-	       3:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_reg;
-	       default: next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_12;
-	   endcase
+		case(structural_haz)
+			3'b100: begin
+				proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_1 = {PC_plus_next[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_2 = {`XLEN'b0}; //invalid 
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_0[31:0] : Imem2proc_data_0[63:32];
+				if_packet_out_1.inst  = PC_IS_LOWER ? Imem2proc_data_0[63:32] : Imem2proc_data_1[31:0];
+				if_packet_out_2.inst = PC_IS_LOWER ? Imem2proc_data_1[31:0] : `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_plus_4;
+				if_packet_out_2.PC = PC_IS_LOWER ? PC_plus_8 : 0;
+			end
+			3'b010: begin
+				proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_2 = {PC_plus_next[`XLEN-1:3], 3'b0};
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_0[31:0] : Imem2proc_data_0[63:32];
+				if_packet_out_1.inst  = PC_IS_LOWER ? Imem2proc_data_0[63:32] : Imem2proc_data_2[31:0];
+				if_packet_out_2.inst = PC_IS_LOWER ? Imem2proc_data_2[31:0] : `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_plus_4;
+				if_packet_out_2.PC = PC_IS_LOWER ? PC_plus_8 : 0;
+			end
+			3'b001: begin
+				proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_2 = {PC_plus_next[`XLEN-1:3], 3'b0};
+				//
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_1[31:0] : Imem2proc_data_1[63:32];
+				if_packet_out_1.inst = PC_IS_LOWER ? Imem2proc_data_1[63:32] : Imem2proc_data_2[31:0];
+				if_packet_out_2.inst = PC_IS_LOWER ? Imem2proc_data_2[31:0] : `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_plus_4;
+				if_packet_out_2.PC = PC_IS_LOWER ? PC_plus_8 : 0;
+			end
+			3'b011: begin
+				proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_2 = {PC_reg[`XLEN-1:3], 3'b0};
+				//
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_2[31:0] : Imem2proc_data_2[63:32];
+				if_packet_out_1.inst = PC_IS_LOWER ? Imem2proc_data_2[63:32] : `NOP;
+				if_packet_out_2.inst = `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_IS_LOWER ? PC_plus_4 : 0;
+				if_packet_out_2.PC = 0;
+			end
+			3'b110: begin
+				proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0}; //invalid 
+				proc2Imem_addr_1 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_2 = {`XLEN'b0};
+				//
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_0[31:0] : Imem2proc_data_0[63:32];
+				if_packet_out_1.inst = PC_IS_LOWER ? Imem2proc_data_0[63:32] : `NOP;
+				if_packet_out_2.inst = `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_IS_LOWER ? PC_plus_4 : 0;
+				if_packet_out_2.PC = 0;
+			end
+			3'b101: begin
+				proc2Imem_addr_0 = {`XLEN'b0}; //invalid 
+				proc2Imem_addr_1 = {PC_reg[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_2 = {`XLEN'b0}; //invalid 
+				//
+				if_packet_out_0.inst = PC_IS_LOWER ? Imem2proc_data_1[31:0] : Imem2proc_data_1[63:32];
+				if_packet_out_1.inst  = PC_IS_LOWER ? Imem2proc_data_1[63:32] : `NOP;
+				if_packet_out_2.inst = `NOP;
+				if_packet_out_0.PC = PC_reg;
+				if_packet_out_1.PC = PC_IS_LOWER ? PC_plus_4 : 0;
+				if_packet_out_2.PC = 0;
+			end
+			default: begin
+				proc2Imem_addr_0 = {PC_reg[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_1 = {PC_plus_4[`XLEN-1:3], 3'b0};
+				proc2Imem_addr_2 = {PC_plus_8[`XLEN-1:3], 3'b0};
+				//
+				if_packet_out_0.inst = structural_haz[0]? `NOP: PC_reg[2] ? Imem2proc_data_0[63:32] : Imem2proc_data_0[31:0];
+				if_packet_out_1.inst = structural_haz[1]? `NOP: PC_plus_4[2] ? Imem2proc_data_1[63:32] : Imem2proc_data_1[31:0];
+				if_packet_out_2.inst = structural_haz[2]? `NOP: PC_plus_8[2] ? Imem2proc_data_2[63:32] : Imem2proc_data_2[31:0];
+				if_packet_out_0.PC = structural_haz[0]? 0: PC_reg;
+				if_packet_out_1.PC = structural_haz[1]? 0: PC_plus_4;
+				if_packet_out_2.PC = structural_haz[2]? 0: PC_plus_8;
+			end
+		endcase
+		//next PC
+		case(invalid_way)
+			1:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_8;
+			2:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_4;
+			3:       next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_reg;
+			default: next_PC = ex_mem_take_branch ? ex_mem_target_pc : PC_plus_12;
+		endcase
 	   //
 	   
 	end 
