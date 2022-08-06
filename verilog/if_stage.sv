@@ -52,34 +52,32 @@ module if_stage(
 		.structural_haz(structural_haz)
 	);
 	//********************* set the fetch address to be sent to the I_memory
-    // IF_ID_PACKET prefetch_queue[16];
-    // logic [3:0] tail, next_tail, increment;
-    // logic [`XLEN-1:0] prefetch_PC;
-    // always_comb begin
-    //     next_tail=tail;
-    //     increment=0;
-    //     if (!structural_haz[0]&&next_tail<14) begin
-    //         proc2Imem_addr[0] = {prefetch_PC[`XLEN-1:3]+increment, 3'b0};
-    //         prefetch_queue[next_tail] = Imem2proc_data[0][31:0];
-    //         prefetch_queue[next_tail+1] = Imem2proc_data[0][63:32];
-    //         next_tail=next_tail+2;
-    //         increment=increment+8;
-    //     end
-    //     if (!structural_haz[1]&&next_tail<14) begin
-    //         proc2Imem_addr[1] = {prefetch_PC[`XLEN-1:3]+increment, 3'b0};
-    //         prefetch_queue[next_tail] = Imem2proc_data[1][31:0];
-    //         prefetch_queue[next_tail+1] = Imem2proc_data[1][63:32];
-    //         next_tail=next_tail+2;
-    //         increment=increment+8;
-    //     end
-    //     if (!structural_haz[2]&&next_tail<14) begin
-    //         proc2Imem_addr[2] = {prefetch_PC[`XLEN-1:3]+increment, 3'b0};
-    //         prefetch_queue[next_tail] = Imem2proc_data[2][31:0];
-    //         prefetch_queue[next_tail+1] = Imem2proc_data[2][63:32];
-    //         next_tail=next_tail+2;
-    //         increment=increment+8;
-    //     end
-    // end
+    IF_ID_PACKET prefetch_queue[16];
+    logic [3:0] tail, next_tail, increment;
+    logic [`XLEN-1:0] prefetch_PC;
+    always_comb begin
+        next_tail=tail;
+        increment=0;
+		for(int i=0;i<3;i++)
+			if (!structural_haz[i]&&next_tail<14) begin
+				proc2Imem_addr[i] = {prefetch_PC[`XLEN-1:3], 3'b0}+increment;
+				prefetch_queue[next_tail] = Imem2proc_data[i][31:0];
+				prefetch_queue[next_tail+1] = Imem2proc_data[i][63:32];
+				next_tail=next_tail+2;
+				increment=increment+8;
+			end
+    end
+
+	always_ff @(posedge clock) begin
+		if(reset) begin
+			prefetch_PC <= `SD 0;       // initial PC value is 0
+			tail <= `SD 0;
+		end
+		else if(PC_enable) begin
+			prefetch_PC <= `SD prefetch_PC+increment; // transition to next PC
+			tail <= `SD next_tail;
+		end
+	end  // always
    
 	logic [1:0] mem_count;
 	assign mem_count = {1'b0,structural_haz[0]} + {1'b0,structural_haz[1]} + {1'b0,structural_haz[2]};

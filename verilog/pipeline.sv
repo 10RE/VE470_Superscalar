@@ -503,7 +503,7 @@ module pipeline (
 		.clock(clock),
 		.reset(reset),
 		.id_ex_packet_in(id_ex_packet),
-		.ex_result('{ex_mem_packet[2].alu_result,ex_mem_packet[1].alu_result,ex_mem_packet[1].alu_result}),
+		.ex_result('{ex_mem_packet[2].alu_result,ex_mem_packet[1].alu_result,ex_mem_packet[0].alu_result}),
 		.mem_result(mem_wb_result),
 		// Outputs
 		.ex_packet_out(ex_packet),
