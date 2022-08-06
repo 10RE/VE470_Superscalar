@@ -102,8 +102,8 @@ module single_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in,
-	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
-	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
+	input [`XLEN-1:0] ex_result[2:0],
+	input [`XLEN-1:0] mem_result[2:0],
 	output EX_MEM_PACKET ex_packet_out
 );
 
@@ -130,23 +130,23 @@ module single_ex_stage(
 		forward_rs1_value=0;
 		case (id_ex_packet_in.rs1_select)
 			RS_IS_RS: 		forward_rs1_value	=	id_ex_packet_in.rs1_value;
-			RS_IS_EX_0: 	forward_rs1_value	=	ex_0_result;
-			RS_IS_MEM_0:	forward_rs1_value	=	mem_0_result;
-			RS_IS_EX_1: 	forward_rs1_value	=	ex_1_result;
-			RS_IS_MEM_1:	forward_rs1_value	=	mem_1_result;
-			RS_IS_EX_2: 	forward_rs1_value	=	ex_2_result;
-			RS_IS_MEM_2:	forward_rs1_value	=	mem_2_result;
+			RS_IS_EX_0: 	forward_rs1_value	=	ex_result[0];
+			RS_IS_MEM_0:	forward_rs1_value	=	mem_result[0];
+			RS_IS_EX_1: 	forward_rs1_value	=	ex_result[1];
+			RS_IS_MEM_1:	forward_rs1_value	=	mem_result[1];
+			RS_IS_EX_2: 	forward_rs1_value	=	ex_result[2];
+			RS_IS_MEM_2:	forward_rs1_value	=	mem_result[2];
 		endcase
 
 		forward_rs2_value=0;
 		case (id_ex_packet_in.rs2_select)
 			RS_IS_RS: 		forward_rs2_value	=	id_ex_packet_in.rs2_value;
-			RS_IS_EX_0: 	forward_rs2_value	=	ex_0_result;
-			RS_IS_MEM_0:	forward_rs2_value	=	mem_0_result;
-			RS_IS_EX_1: 	forward_rs2_value	=	ex_1_result;
-			RS_IS_MEM_1:	forward_rs2_value	=	mem_1_result;
-			RS_IS_EX_2: 	forward_rs2_value	=	ex_2_result;
-			RS_IS_MEM_2:	forward_rs2_value	=	mem_2_result;
+			RS_IS_EX_0: 	forward_rs2_value	=	ex_result[0];
+			RS_IS_MEM_0:	forward_rs2_value	=	mem_result[0];
+			RS_IS_EX_1: 	forward_rs2_value	=	ex_result[1];
+			RS_IS_MEM_1:	forward_rs2_value	=	mem_result[1];
+			RS_IS_EX_2: 	forward_rs2_value	=	ex_result[2];
+			RS_IS_MEM_2:	forward_rs2_value	=	mem_result[2];
 		endcase
 	end
 
@@ -206,14 +206,10 @@ endmodule // single_ex_stage
 module ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
-	input ID_EX_PACKET   id_ex_packet_in_0,
-	input ID_EX_PACKET   id_ex_packet_in_1,
-	input ID_EX_PACKET   id_ex_packet_in_2,
-	input [`XLEN-1:0] ex_0_result, ex_1_result, ex_2_result,
-	input [`XLEN-1:0] mem_0_result, mem_1_result, mem_2_result,
-	output EX_MEM_PACKET ex_packet_out_0,
-	output EX_MEM_PACKET ex_packet_out_1,
-	output EX_MEM_PACKET ex_packet_out_2,
+	input ID_EX_PACKET   id_ex_packet_in[2:0],
+	input [`XLEN-1:0] ex_result[2:0],
+	input [`XLEN-1:0] mem_result [2:0],
+	output EX_MEM_PACKET ex_packet_out[2:0],
 	output logic ex_mem_take_branch,
 	output logic [`XLEN-1:0] ex_mem_target_pc,
 	output logic [1:0] ex_mem_branch_way
@@ -222,60 +218,47 @@ module ex_stage(
 	single_ex_stage ex_stage_0 (
 		.clock(clock),               
 		.reset(reset),               
-		.id_ex_packet_in(id_ex_packet_in_0),
-		.ex_0_result(ex_0_result), 
-		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
-		.mem_0_result(mem_0_result), 
-		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
-		.ex_packet_out(ex_packet_out_0)
+		.id_ex_packet_in(id_ex_packet_in[0]),
+		.ex_result(ex_result), 
+		.mem_result(mem_result), 
+		.ex_packet_out(ex_packet_out[0])
 	);
-
 	single_ex_stage ex_stage_1 (
 		.clock(clock),               
 		.reset(reset),               
-		.id_ex_packet_in(id_ex_packet_in_1),
-		.ex_0_result(ex_0_result), 
-		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
-		.mem_0_result(mem_0_result), 
-		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
-		.ex_packet_out(ex_packet_out_1)
+		.id_ex_packet_in(id_ex_packet_in[1]),
+		.ex_result(ex_result), 
+		.mem_result(mem_result), 
+		.ex_packet_out(ex_packet_out[1])
 	);
-
 	single_ex_stage ex_stage_2 (
 		.clock(clock),               
 		.reset(reset),               
-		.id_ex_packet_in(id_ex_packet_in_2),
-		.ex_0_result(ex_0_result), 
-		.ex_1_result(ex_1_result), 
-		.ex_2_result(ex_2_result),
-		.mem_0_result(mem_0_result), 
-		.mem_1_result(mem_1_result), 
-		.mem_2_result(mem_2_result),
-		.ex_packet_out(ex_packet_out_2)
+		.id_ex_packet_in(id_ex_packet_in[2]),
+		.ex_result(ex_result), 
+		.mem_result(mem_result), 
+		.ex_packet_out(ex_packet_out[2])
 	);
+
 
 	// brcond
 	always_comb begin
 		ex_mem_take_branch = 0;
 		ex_mem_target_pc = 0;
 		ex_mem_branch_way = 0;
-		if (ex_packet_out_0.take_branch || ex_packet_out_0.halt) begin
+		if (ex_packet_out[0].take_branch || ex_packet_out[0].halt) begin
 			ex_mem_take_branch = 1;
-			ex_mem_target_pc = ex_packet_out_0.alu_result;
+			ex_mem_target_pc = ex_packet_out[0].alu_result;
 			ex_mem_branch_way = 0;
 		end
-		else if (ex_packet_out_1.take_branch || ex_packet_out_1.halt) begin
+		else if (ex_packet_out[1].take_branch || ex_packet_out[1].halt) begin
 			ex_mem_take_branch = 1;
-			ex_mem_target_pc = ex_packet_out_1.alu_result;
+			ex_mem_target_pc = ex_packet_out[1].alu_result;
 			ex_mem_branch_way = 1;
 		end
-		else if (ex_packet_out_2.take_branch || ex_packet_out_2.halt) begin
+		else if (ex_packet_out[2].take_branch || ex_packet_out[2].halt) begin
 			ex_mem_take_branch = 1;
-			ex_mem_target_pc = ex_packet_out_2.alu_result;
+			ex_mem_target_pc = ex_packet_out[2].alu_result;
 			ex_mem_branch_way = 2;
 		end
 	end

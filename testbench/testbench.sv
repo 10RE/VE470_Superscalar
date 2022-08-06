@@ -130,30 +130,16 @@ module testbench;
 
 	mem memory(
 	.clk(clock),              // Memory clock
-	.proc2mem_addr_0(proc2mem_addr[0]),    // address for current command
-	.proc2mem_addr_1(proc2mem_addr[1]),    // address for current command
-	.proc2mem_addr_2(proc2mem_addr[2]),    // address for current command
+	.proc2mem_addr(proc2mem_addr),    // address for current command
 	//support for memory model with byte level addressing
-	.proc2mem_data_0(proc2mem_data[0]),    // address for current command
-	.proc2mem_data_1(proc2mem_data[1]),    // address for current command
-	.proc2mem_data_2(proc2mem_data[2]),    // address for current command
+	.proc2mem_data(proc2mem_data),    // address for current command
 
-	.proc2mem_size_0(proc2mem_size[0]), //BYTE, HALF, WORD or DOUBLE
-	.proc2mem_size_1(proc2mem_size[1]), //BYTE, HALF, WORD or DOUBLE
-	.proc2mem_size_2(proc2mem_size[2]), //BYTE, HALF, WORD or DOUBLE
-	.proc2mem_command_0(proc2mem_command[0]), // `BUS_NONE `BUS_LOAD or `BUS_STORE
-	.proc2mem_command_1(proc2mem_command[1]), // `BUS_NONE `BUS_LOAD or `BUS_STORE
-	.proc2mem_command_2(proc2mem_command[2]), // `BUS_NONE `BUS_LOAD or `BUS_STORE
+	.proc2mem_size(proc2mem_size), //BYTE, HALF, WORD or DOUBLE
+	.proc2mem_command(proc2mem_command), // `BUS_NONE `BUS_LOAD or `BUS_STORE
 	
-	.mem2proc_response_0(mem2proc_response[0]),// 0 = can't accept, other=tag of transaction
-	.mem2proc_response_1(mem2proc_response[1]),// 0 = can't accept, other=tag of transaction
-	.mem2proc_response_2(mem2proc_response[2]),// 0 = can't accept, other=tag of transaction
-	.mem2proc_data_0(mem2proc_data[0]),    // data resulting from a load
-	.mem2proc_data_1(mem2proc_data[1]),    // data resulting from a load
-	.mem2proc_data_2(mem2proc_data[2]),    // data resulting from a load
-	.mem2proc_tag_0(mem2proc_tag[0]),    // 0 = no value, other=tag of transaction
-	.mem2proc_tag_1(mem2proc_tag[1]),    // 0 = no value, other=tag of transaction
-	.mem2proc_tag_2(mem2proc_tag[2])     // 0 = no value, other=tag of transaction
+	.mem2proc_response(mem2proc_response),// 0 = can't accept, other=tag of transaction
+	.mem2proc_data(mem2proc_data),    // data resulting from a load
+	.mem2proc_tag(mem2proc_tag)     // 0 = no value, other=tag of transaction
 );	
 	// Generate System Clock
 	always begin

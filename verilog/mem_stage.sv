@@ -73,69 +73,31 @@ endmodule // single_mem_stage
 module mem_stage(
 	input         clock,              // system clock
 	input         reset,              // system reset
-	input  EX_MEM_PACKET ex_mem_packet_in_0,      // write memory? (from decoder)
-	input  EX_MEM_PACKET ex_mem_packet_in_1,
-	input  EX_MEM_PACKET ex_mem_packet_in_2,
+	input  EX_MEM_PACKET ex_mem_packet_in[2:0],      // write memory? (from decoder)
 	
-	input  [`XLEN-1:0] Dmem2proc_data_0,
-	input  [`XLEN-1:0] Dmem2proc_data_1,
-	input  [`XLEN-1:0] Dmem2proc_data_2,
+	input  [`XLEN-1:0] Dmem2proc_data[2:0],
 	
-	output logic [`XLEN-1:0] mem_result_out_0,      // outgoing instruction result (to MEM/WB)
-	output logic [`XLEN-1:0] mem_result_out_1,
-	output logic [`XLEN-1:0] mem_result_out_2,
+	output logic [`XLEN-1:0] mem_result_out[2:0],      // outgoing instruction result (to MEM/WB)
 
-	output logic [1:0] proc2Dmem_command_0,
-	output logic [1:0] proc2Dmem_command_1,
-	output logic [1:0] proc2Dmem_command_2,
+	output logic [1:0] proc2Dmem_command[2:0],
 
-	output MEM_SIZE proc2Dmem_size_0,
-	output MEM_SIZE proc2Dmem_size_1,
-	output MEM_SIZE proc2Dmem_size_2,
+	output MEM_SIZE proc2Dmem_size[2:0],
 
-	output logic [`XLEN-1:0] proc2Dmem_addr_0,      // Address sent to data-memory
-	output logic [`XLEN-1:0] proc2Dmem_addr_1,
-	output logic [`XLEN-1:0] proc2Dmem_addr_2,
+	output logic [`XLEN-1:0] proc2Dmem_addr[2:0],      // Address sent to data-memory
 
-	output logic [`XLEN-1:0] proc2Dmem_data_0,      // Data sent to data-memory
-	output logic [`XLEN-1:0] proc2Dmem_data_1,
-	output logic [`XLEN-1:0] proc2Dmem_data_2
+	output logic [`XLEN-1:0] proc2Dmem_data[2:0]      // Data sent to data-memory
 );
 
-single_mem_stage single_mem_stage_0 (
+single_mem_stage single_mem_stage[2:0] (
 	.clock(clock),             
     .reset(reset),              
-  	.ex_mem_packet_in(ex_mem_packet_in_0),      
-  	.Dmem2proc_data(Dmem2proc_data_0),
-	.mem_result_out(mem_result_out_0),
-	.proc2Dmem_command(proc2Dmem_command_0),
-	.proc2Dmem_size(proc2Dmem_size_0),
-	.proc2Dmem_addr(proc2Dmem_addr_0),
-	.proc2Dmem_data(proc2Dmem_data_0)
-);
-
-single_mem_stage single_mem_stage_1 (
-	.clock(clock),             
-    .reset(reset),              
-  	.ex_mem_packet_in(ex_mem_packet_in_1),      
-  	.Dmem2proc_data(Dmem2proc_data_1),
-	.mem_result_out(mem_result_out_1),
-	.proc2Dmem_command(proc2Dmem_command_1),
-	.proc2Dmem_size(proc2Dmem_size_1),
-	.proc2Dmem_addr(proc2Dmem_addr_1),
-	.proc2Dmem_data(proc2Dmem_data_1)
-);
-
-single_mem_stage single_mem_stage_2 (
-	.clock(clock),             
-    .reset(reset),              
-  	.ex_mem_packet_in(ex_mem_packet_in_2),      
-  	.Dmem2proc_data(Dmem2proc_data_2),
-	.mem_result_out(mem_result_out_2),
-	.proc2Dmem_command(proc2Dmem_command_2),
-	.proc2Dmem_size(proc2Dmem_size_2),
-	.proc2Dmem_addr(proc2Dmem_addr_2),
-	.proc2Dmem_data(proc2Dmem_data_2)
+  	.ex_mem_packet_in(ex_mem_packet_in),      
+  	.Dmem2proc_data(Dmem2proc_data),
+	.mem_result_out(mem_result_out),
+	.proc2Dmem_command(proc2Dmem_command),
+	.proc2Dmem_size(proc2Dmem_size),
+	.proc2Dmem_addr(proc2Dmem_addr),
+	.proc2Dmem_data(proc2Dmem_data)
 );
 
 	

@@ -8,21 +8,13 @@
 
 
 module detection_unit(
-    input ID_EX_PACKET id_packet_0,
-    input ID_EX_PACKET id_packet_1,
-    input ID_EX_PACKET id_packet_2,
+    input ID_EX_PACKET id_packet[2:0],
 
-    input ID_EX_PACKET ex_packet_0,
-    input ID_EX_PACKET ex_packet_1,
-    input ID_EX_PACKET ex_packet_2,
+    input ID_EX_PACKET ex_packet[2:0],
 
-    input EX_MEM_PACKET mem_packet_0,
-    input EX_MEM_PACKET mem_packet_1,
-    input EX_MEM_PACKET mem_packet_2,
+    input EX_MEM_PACKET mem_packet[2:0],
 
-    output ID_EX_PACKET id_packet_out_0,
-    output ID_EX_PACKET id_packet_out_1,
-    output ID_EX_PACKET id_packet_out_2,
+    output ID_EX_PACKET id_packet_out[2:0],
 
     output logic [1:0] rollback
 
@@ -35,23 +27,23 @@ module detection_unit(
 );
     logic [4:0] mem_dest_reg [2:0];
     assign mem_dest_reg={
-        mem_packet_2.dest_reg_idx,
-        mem_packet_1.dest_reg_idx,
-        mem_packet_0.dest_reg_idx
+        mem_packet[2].dest_reg_idx,
+        mem_packet[1].dest_reg_idx,
+        mem_packet[0].dest_reg_idx
     };
 
     logic [4:0] ex_dest_reg [2:0];
     assign ex_dest_reg={
-        ex_packet_2.dest_reg_idx,
-        ex_packet_1.dest_reg_idx,
-        ex_packet_0.dest_reg_idx
+        ex_packet[2].dest_reg_idx,
+        ex_packet[1].dest_reg_idx,
+        ex_packet[0].dest_reg_idx
     };
 
     logic ex_load [2:0];
     assign ex_load={
-        ex_packet_2.rd_mem,
-        ex_packet_1.rd_mem,
-        ex_packet_0.rd_mem
+        ex_packet[2].rd_mem,
+        ex_packet[1].rd_mem,
+        ex_packet[0].rd_mem
     };
 
 module single_rs_select(
@@ -109,33 +101,33 @@ endmodule
 
 `ifdef DETECTION_UNIT_TEST
     assign forwarding_A = {
-        id_packet_out_0.rs1_select,
-        id_packet_out_1.rs1_select,
-        id_packet_out_2.rs1_select
+        id_packet_out[0].rs1_select,
+        id_packet_out[1].rs1_select,
+        id_packet_out[2].rs1_select
     };
 
     assign forwarding_B = {
-        id_packet_out_0.rs2_select,
-        id_packet_out_1.rs2_select,
-        id_packet_out_2.rs2_select
+        id_packet_out[0].rs2_select,
+        id_packet_out[1].rs2_select,
+        id_packet_out[2].rs2_select
     };
 `endif
-    logic ex_load_depend_0, ex_load_depend_1, ex_load_depend_2;
+    logic ex_load_depend[3];
 
     single_way_select way_0(
-        .id_packet(id_packet_0),
-        .id_packet_out(id_packet_out_0),
-        .ex_load_depend(ex_load_depend_0)
+        .id_packet(id_packet[0]),
+        .id_packet_out(id_packet_out[0]),
+        .ex_load_depend(ex_load_depend[0])
     );
     single_way_select way_1(
-        .id_packet(id_packet_1),
-        .id_packet_out(id_packet_out_1),
-        .ex_load_depend(ex_load_depend_1)
+        .id_packet(id_packet[1]),
+        .id_packet_out(id_packet_out[1]),
+        .ex_load_depend(ex_load_depend[1])
     );
     single_way_select way_2(
-        .id_packet(id_packet_2),
-        .id_packet_out(id_packet_out_2),
-        .ex_load_depend(ex_load_depend_2)
+        .id_packet(id_packet[2]),
+        .id_packet_out(id_packet_out[2]),
+        .ex_load_depend(ex_load_depend[2])
     );
 
 module depend_helper(
@@ -150,18 +142,18 @@ endmodule
     logic way_0_depend_by_1, way_0_depend_by_2, way_1_depend_by_2;
 
     depend_helper way0vs1(
-        .id_packet(id_packet_0),
-        .id_packet_later(id_packet_1),
+        .id_packet(id_packet[0]),
+        .id_packet_later(id_packet[1]),
         .depend(way_0_depend_by_1)
     );
     depend_helper way0vs2(
-        .id_packet(id_packet_0),
-        .id_packet_later(id_packet_2),
+        .id_packet(id_packet[0]),
+        .id_packet_later(id_packet[2]),
         .depend(way_0_depend_by_2)
     );
     depend_helper way1vs2(
-        .id_packet(id_packet_1),
-        .id_packet_later(id_packet_2),
+        .id_packet(id_packet[1]),
+        .id_packet_later(id_packet[2]),
         .depend(way_1_depend_by_2)
     );
 
@@ -171,11 +163,11 @@ endmodule
         rollback_across_cycle = 0;
         rollback_same_cycle = 0;
         // hazards between stages
-        if (ex_load_depend_0)
+        if (ex_load_depend[0])
             rollback_across_cycle = 3;
-        else if (ex_load_depend_1)
+        else if (ex_load_depend[1])
             rollback_across_cycle = 2;
-        else if (ex_load_depend_2)
+        else if (ex_load_depend[2])
             rollback_across_cycle = 1;
         
         // hazards between ways in single cycle

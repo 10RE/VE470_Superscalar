@@ -185,21 +185,13 @@ module pipeline (
 	                                ((mem2proc_response[0]==4'h0) | (mem2proc_response[1]==4'h0) | (mem2proc_response[2]==4'h0))  ? LOAD_ACCESS_FAULT :
 	                                NO_ERROR;
 	
-	assign pipeline_commit_wr_idx[0] = wb_reg_wr_idx_out[0];
-	assign pipeline_commit_wr_idx[1] = wb_reg_wr_idx_out[1];
-	assign pipeline_commit_wr_idx[2] = wb_reg_wr_idx_out[2];
+	assign pipeline_commit_wr_idx = wb_reg_wr_idx_out;
 
-	assign pipeline_commit_wr_data[0] = wb_reg_wr_data_out[0];
-	assign pipeline_commit_wr_data[1] = wb_reg_wr_data_out[1];
-	assign pipeline_commit_wr_data[2] = wb_reg_wr_data_out[2];
+	assign pipeline_commit_wr_data = wb_reg_wr_data_out;
 
-	assign pipeline_commit_wr_en[0] = wb_reg_wr_en_out[0];
-	assign pipeline_commit_wr_en[1] = wb_reg_wr_en_out[1];
-	assign pipeline_commit_wr_en[2] = wb_reg_wr_en_out[2];
+	assign pipeline_commit_wr_en = wb_reg_wr_en_out;
 
-	assign pipeline_commit_NPC[0] = mem_wb_NPC[0];
-	assign pipeline_commit_NPC[1] = mem_wb_NPC[1];
-	assign pipeline_commit_NPC[2] = mem_wb_NPC[2];
+	assign pipeline_commit_NPC = mem_wb_NPC;
 	
 	assign proc2mem_command[0] =
 	     (proc2Dmem_command[0] == BUS_NONE) ? BUS_LOAD : proc2Dmem_command[0];
@@ -251,22 +243,14 @@ module pipeline (
 		.mem_wb_valid_inst(mem_wb_valid_inst[0]),
 		.ex_mem_take_branch(mem_take_branch),
 		.ex_mem_target_pc(mem_target_pc),
-		.Imem2proc_data_0(mem2proc_data[0]),
-		.Imem2proc_data_1(mem2proc_data[1]),
-		.Imem2proc_data_2(mem2proc_data[2]),
+		.Imem2proc_data(mem2proc_data),
 		
-		.ex_mem_packet_0(ex_mem_packet[0]),
-		.ex_mem_packet_1(ex_mem_packet[1]),
-		.ex_mem_packet_2(ex_mem_packet[2]),
+		.ex_mem_packet(ex_mem_packet),
 
 		
 		// Outputs
-		.proc2Imem_addr_0(proc2Imem_addr[0]),
-		.proc2Imem_addr_1(proc2Imem_addr[1]),
-		.proc2Imem_addr_2(proc2Imem_addr[2]),
-		.if_packet_out_0(if_packet[0]),
-		.if_packet_out_1(if_packet[1]),
-		.if_packet_out_2(if_packet[2]),
+		.proc2Imem_addr(proc2Imem_addr),
+		.if_packet_out(if_packet),
 		
 		.rollback(rollback),
 		
@@ -328,35 +312,21 @@ module pipeline (
 		.clock(clock),
 		.reset(reset),
 
-		.wb_reg_wr_en_out_0   (wb_reg_wr_en_out[0]),
-		.wb_reg_wr_idx_out_0  (wb_reg_wr_idx_out[0]),
-		.wb_reg_wr_data_out_0 (wb_reg_wr_data_out[0]),
-		.wb_reg_wr_en_out_1   (wb_reg_wr_en_out[1]),
-		.wb_reg_wr_idx_out_1  (wb_reg_wr_idx_out[1]),
-		.wb_reg_wr_data_out_1 (wb_reg_wr_data_out[1]),
-		.wb_reg_wr_en_out_2   (wb_reg_wr_en_out[2]),
-		.wb_reg_wr_idx_out_2  (wb_reg_wr_idx_out[2]),
-		.wb_reg_wr_data_out_2 (wb_reg_wr_data_out[2]),
+		.wb_reg_wr_en_out   (wb_reg_wr_en_out),
+		.wb_reg_wr_idx_out  (wb_reg_wr_idx_out),
+		.wb_reg_wr_data_out (wb_reg_wr_data_out),
 
-		.if_id_packet_in_0(if_id_packet[0]),
-		.if_id_packet_in_1(if_id_packet[1]),
-		.if_id_packet_in_2(if_id_packet[2]),
+		.if_id_packet_in(if_id_packet),
 
-		.id_ex_packet_in_0(id_ex_packet[0]),
-		.id_ex_packet_in_1(id_ex_packet[1]),
-		.id_ex_packet_in_2(id_ex_packet[2]),
+		.id_ex_packet_in(id_ex_packet),
 
-		.ex_mem_packet_in_0(ex_mem_packet[0]),
-		.ex_mem_packet_in_1(ex_mem_packet[1]),
-		.ex_mem_packet_in_2(ex_mem_packet[2]),
+		.ex_mem_packet_in(ex_mem_packet),
 		
 		.rollback(rollback),
 		.ex_mem_take_branch(mem_take_branch),
 		
 		// Outputs
-		.id_packet_out_0(id_packet[0]),
-		.id_packet_out_1(id_packet[1]),
-		.id_packet_out_2(id_packet[2])
+		.id_packet_out(id_packet)
 		
 		`ifdef DEBUG
 		,.sorted_packet_0_PC(sorted_packet_0_PC)
@@ -532,19 +502,11 @@ module pipeline (
 		// Inputs
 		.clock(clock),
 		.reset(reset),
-		.id_ex_packet_in_0(id_ex_packet[0]),
-		.id_ex_packet_in_1(id_ex_packet[1]),
-		.id_ex_packet_in_2(id_ex_packet[2]),
-		.ex_0_result(ex_mem_packet[0].alu_result),
-		.ex_1_result(ex_mem_packet[1].alu_result),
-		.ex_2_result(ex_mem_packet[2].alu_result),
-		.mem_0_result(mem_wb_result[0]),
-		.mem_1_result(mem_wb_result[1]),
-		.mem_2_result(mem_wb_result[2]),
+		.id_ex_packet_in(id_ex_packet),
+		.ex_result('{ex_mem_packet[2].alu_result,ex_mem_packet[1].alu_result,ex_mem_packet[1].alu_result}),
+		.mem_result(mem_wb_result),
 		// Outputs
-		.ex_packet_out_0(ex_packet[0]),
-		.ex_packet_out_1(ex_packet[1]),
-		.ex_packet_out_2(ex_packet[2]),
+		.ex_packet_out(ex_packet),
 		.ex_mem_take_branch(ex_mem_take_branch),
 		.ex_mem_target_pc(ex_mem_target_pc),
 		.ex_mem_branch_way(ex_mem_branch_way)
@@ -613,34 +575,20 @@ module pipeline (
 		.clock(clock),
 		.reset(reset),
 
-		.ex_mem_packet_in_0(ex_mem_packet[0]),
-		.ex_mem_packet_in_1(ex_mem_packet[1]),
-		.ex_mem_packet_in_2(ex_mem_packet[2]),
+		.ex_mem_packet_in(ex_mem_packet),
 
-		.Dmem2proc_data_0(mem2proc_data[0]),
-		.Dmem2proc_data_1(mem2proc_data[1]),
-		.Dmem2proc_data_2(mem2proc_data[2]),
+		.Dmem2proc_data('{mem2proc_data[2][`XLEN-1:0],mem2proc_data[1][`XLEN-1:0],mem2proc_data[0][`XLEN-1:0]}),
 		
 		// Outputs
-		.mem_result_out_0(mem_result_out[0]),
-		.mem_result_out_1(mem_result_out[1]),
-		.mem_result_out_2(mem_result_out[2]),
+		.mem_result_out(mem_result_out),
 		
-		.proc2Dmem_command_0(proc2Dmem_command[0]),
-		.proc2Dmem_command_1(proc2Dmem_command[1]),
-		.proc2Dmem_command_2(proc2Dmem_command[2]),
+		.proc2Dmem_command(proc2Dmem_command),
 
-		.proc2Dmem_size_0(proc2Dmem_size[0]),
-		.proc2Dmem_size_1(proc2Dmem_size[1]),
-		.proc2Dmem_size_2(proc2Dmem_size[2]),
+		.proc2Dmem_size(proc2Dmem_size),
 		
-		.proc2Dmem_addr_0(proc2Dmem_addr[0]),
-		.proc2Dmem_addr_1(proc2Dmem_addr[1]),
-		.proc2Dmem_addr_2(proc2Dmem_addr[2]),
+		.proc2Dmem_addr(proc2Dmem_addr),
 
-		.proc2Dmem_data_0(proc2Dmem_data[0]),
-		.proc2Dmem_data_1(proc2Dmem_data[1]),
-		.proc2Dmem_data_2(proc2Dmem_data[2])
+		.proc2Dmem_data(proc2Dmem_data)
 	);
 
 

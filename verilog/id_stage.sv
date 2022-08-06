@@ -225,35 +225,21 @@ endmodule // decoder
 module id_stage(         
 	input         clock,              // system clock
 	input         reset,              // system reset
-	input         wb_reg_wr_en_out_0,    // Reg write enable from WB Stage
-	input  [4:0] wb_reg_wr_idx_out_0,  // Reg write index from WB Stage
-	input  [`XLEN-1:0] wb_reg_wr_data_out_0,  // Reg write data from WB Stage
-	input         wb_reg_wr_en_out_1,    // Reg write enable from WB Stage
-	input  [4:0] wb_reg_wr_idx_out_1,  // Reg write index from WB Stage
-	input  [`XLEN-1:0] wb_reg_wr_data_out_1,  // Reg write data from WB Stage
-	input         wb_reg_wr_en_out_2,    // Reg write enable from WB Stage
-	input  [4:0] wb_reg_wr_idx_out_2,  // Reg write index from WB Stage
-	input  [`XLEN-1:0] wb_reg_wr_data_out_2,  // Reg write data from WB Stage
+	input         wb_reg_wr_en_out[`WAYS-1:0],    // Reg write enable from WB Stage
+	input  [4:0] wb_reg_wr_idx_out[`WAYS-1:0],  // Reg write index from WB Stage
+	input  [`XLEN-1:0] wb_reg_wr_data_out[`WAYS-1:0],  // Reg write data from WB Stage
+
+	input  IF_ID_PACKET if_id_packet_in[`WAYS-1:0],
 	
-	input  IF_ID_PACKET if_id_packet_in_0,
-	input  IF_ID_PACKET if_id_packet_in_1,
-	input  IF_ID_PACKET if_id_packet_in_2,
+	input ID_EX_PACKET id_ex_packet_in[`WAYS-1:0],
 	
-	input ID_EX_PACKET id_ex_packet_in_0, // forwarding data
-	input ID_EX_PACKET id_ex_packet_in_1,
-	input ID_EX_PACKET id_ex_packet_in_2,
-	
-	input EX_MEM_PACKET ex_mem_packet_in_0,
-	input EX_MEM_PACKET ex_mem_packet_in_1,
-	input EX_MEM_PACKET ex_mem_packet_in_2,
+	input EX_MEM_PACKET ex_mem_packet_in[`WAYS-1:0],
 	
 	input ex_mem_take_branch,
 	
 	output [1:0] rollback,
 	
-	output ID_EX_PACKET id_packet_out_0,
-	output ID_EX_PACKET id_packet_out_1,
-	output ID_EX_PACKET id_packet_out_2
+	output ID_EX_PACKET id_packet_out[`WAYS-1:0]
 	
 	`ifdef DEBUG
 	,output [`XLEN-1:0] sorted_packet_0_PC
@@ -263,149 +249,102 @@ module id_stage(
     logic [1:0] pre_rollback;
     
     
-    IF_ID_PACKET hold_reg_0;
-    IF_ID_PACKET hold_reg_1;
-    IF_ID_PACKET hold_reg_2;
+    IF_ID_PACKET hold_reg[`WAYS-1:0];
     
-    IF_ID_PACKET sorted_packet_0;
-    IF_ID_PACKET sorted_packet_1;
-    IF_ID_PACKET sorted_packet_2;
+    IF_ID_PACKET sorted_packet[`WAYS-1:0];
 
-	ID_EX_PACKET id_packet_internal_0;
-	ID_EX_PACKET id_packet_internal_1;
-	ID_EX_PACKET id_packet_internal_2;
+	ID_EX_PACKET id_packet_internal[`WAYS-1:0];
     
 
 	always_comb begin
 		case (pre_rollback)
-			0:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={if_id_packet_in_0,	if_id_packet_in_1,	if_id_packet_in_2};
-			1:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_2,		if_id_packet_in_0,	if_id_packet_in_1};
-			2:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_1,		hold_reg_2,			if_id_packet_in_0};
-			3:{sorted_packet_0,sorted_packet_1,sorted_packet_2}={hold_reg_0,		hold_reg_1,			hold_reg_2};
+			0:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={if_id_packet_in[0],	if_id_packet_in[1],	if_id_packet_in[2]};
+			1:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[2],		if_id_packet_in[0],	if_id_packet_in[1]};
+			2:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[1],		hold_reg[2],			if_id_packet_in[0]};
+			3:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[0],		hold_reg[1],			hold_reg[2]};
 		endcase
 		
 	end
     
-    assign id_packet_internal_0.inst = sorted_packet_0.inst;
-    assign id_packet_internal_0.NPC  = sorted_packet_0.NPC;
-    assign id_packet_internal_0.PC   = sorted_packet_0.PC;
-    assign id_packet_internal_1.inst = sorted_packet_1.inst;
-    assign id_packet_internal_1.NPC  = sorted_packet_1.NPC;
-    assign id_packet_internal_1.PC   = sorted_packet_1.PC;
-    assign id_packet_internal_2.inst = sorted_packet_2.inst;
-    assign id_packet_internal_2.NPC  = sorted_packet_2.NPC;
-    assign id_packet_internal_2.PC   = sorted_packet_2.PC;
+    assign id_packet_internal[0].inst = sorted_packet[0].inst;
+    assign id_packet_internal[0].NPC  = sorted_packet[0].NPC;
+    assign id_packet_internal[0].PC   = sorted_packet[0].PC;
+    assign id_packet_internal[1].inst = sorted_packet[1].inst;
+    assign id_packet_internal[1].NPC  = sorted_packet[1].NPC;
+    assign id_packet_internal[1].PC   = sorted_packet[1].PC;
+    assign id_packet_internal[2].inst = sorted_packet[2].inst;
+    assign id_packet_internal[2].NPC  = sorted_packet[2].NPC;
+    assign id_packet_internal[2].PC   = sorted_packet[2].PC;
     
-	DEST_REG_SEL dest_reg_select_0; 
-	DEST_REG_SEL dest_reg_select_1; 
-	DEST_REG_SEL dest_reg_select_2; 
+	DEST_REG_SEL dest_reg_select[`WAYS-1:0]; 
 
-
+	wire [4:0] rda_idx[2:0], rdb_idx[2:0];
+	wire [`XLEN-1:0] rda_out[2:0], rdb_out[2:0];
+	genvar i;
+    generate
+		for (i=0;i<`WAYS;i++) begin
+			assign rda_idx[i]=sorted_packet[i].inst.r.rs1;
+			assign id_packet_internal[i].rs1_value=rda_out[i];
+			assign rdb_idx[i]=sorted_packet[i].inst.r.rs2;
+			assign id_packet_internal[i].rs2_value=rdb_out[i];
+		end
+	endgenerate
+	
 	// Instantiate the register file used by this pipeline
 	superregfile regf_0 (
-		.rda_idx_0(sorted_packet_0.inst.r.rs1),
-		.rda_out_0(id_packet_internal_0.rs1_value), 
+		.rda_idx(rda_idx),
+		.rda_out(rda_out), 
 
-		.rdb_idx_0(sorted_packet_0.inst.r.rs2),
-		.rdb_out_0(id_packet_internal_0.rs2_value),
-		
-		.rda_idx_1(sorted_packet_1.inst.r.rs1),
-		.rda_out_1(id_packet_internal_1.rs1_value), 
-
-		.rdb_idx_1(sorted_packet_1.inst.r.rs2),
-		.rdb_out_1(id_packet_internal_1.rs2_value),
-		
-		.rda_idx_2(sorted_packet_2.inst.r.rs1),
-		.rda_out_2(id_packet_internal_2.rs1_value), 
-
-		.rdb_idx_2(sorted_packet_2.inst.r.rs2),
-		.rdb_out_2(id_packet_internal_2.rs2_value),
+		.rdb_idx(rdb_idx),
+		.rdb_out(rdb_out),
 
 		.wr_clk(clock),
-		.wr_en_0(wb_reg_wr_en_out_0),
-		.wr_idx_0(wb_reg_wr_idx_out_0),
-		.wr_data_0(wb_reg_wr_data_out_0),
-		
-		.wr_en_1(wb_reg_wr_en_out_1),
-		.wr_idx_1(wb_reg_wr_idx_out_1),
-		.wr_data_1(wb_reg_wr_data_out_1),
-		
-		.wr_en_2(wb_reg_wr_en_out_2),
-		.wr_idx_2(wb_reg_wr_idx_out_2),
-		.wr_data_2(wb_reg_wr_data_out_2)
+		.wr_en(wb_reg_wr_en_out),
+		.wr_idx(wb_reg_wr_idx_out),
+		.wr_data(wb_reg_wr_data_out)
 	);
 
 	// instantiate the instruction decoder
-	decoder decoder_0 (
-		.if_packet(sorted_packet_0),	 
-		// Outputs
-		.opa_select(id_packet_internal_0.opa_select),
-		.opb_select(id_packet_internal_0.opb_select),
-		.alu_func(id_packet_internal_0.alu_func),
-		.dest_reg(dest_reg_select_0),
-		.rd_mem(id_packet_internal_0.rd_mem),
-		.wr_mem(id_packet_internal_0.wr_mem),
-		.cond_branch(id_packet_internal_0.cond_branch),
-		.uncond_branch(id_packet_internal_0.uncond_branch),
-		.csr_op(id_packet_internal_0.csr_op),
-		.halt(id_packet_internal_0.halt),
-		.illegal(id_packet_internal_0.illegal),
-		.valid_inst(id_packet_internal_0.valid)
-	);
 	
-	decoder decoder_1 (
-		.if_packet(sorted_packet_1),	 
-		// Outputs
-		.opa_select(id_packet_internal_1.opa_select),
-		.opb_select(id_packet_internal_1.opb_select),
-		.alu_func(id_packet_internal_1.alu_func),
-		.dest_reg(dest_reg_select_1),
-		.rd_mem(id_packet_internal_1.rd_mem),
-		.wr_mem(id_packet_internal_1.wr_mem),
-		.cond_branch(id_packet_internal_1.cond_branch),
-		.uncond_branch(id_packet_internal_1.uncond_branch),
-		.csr_op(id_packet_internal_1.csr_op),
-		.halt(id_packet_internal_1.halt),
-		.illegal(id_packet_internal_1.illegal),
-		.valid_inst(id_packet_internal_1.valid)
-	);
-	
-	decoder decoder_2 (
-		.if_packet(sorted_packet_2),	 
-		// Outputs
-		.opa_select(id_packet_internal_2.opa_select),
-		.opb_select(id_packet_internal_2.opb_select),
-		.alu_func(id_packet_internal_2.alu_func),
-		.dest_reg(dest_reg_select_2),
-		.rd_mem(id_packet_internal_2.rd_mem),
-		.wr_mem(id_packet_internal_2.wr_mem),
-		.cond_branch(id_packet_internal_2.cond_branch),
-		.uncond_branch(id_packet_internal_2.uncond_branch),
-		.csr_op(id_packet_internal_2.csr_op),
-		.halt(id_packet_internal_2.halt),
-		.illegal(id_packet_internal_2.illegal),
-		.valid_inst(id_packet_internal_2.valid)
-	);
+	generate
+		for (i=0;i<`WAYS;i++)
+			decoder decoder (
+				.if_packet(sorted_packet[i]),	 
+				// Outputs
+				.opa_select(id_packet_internal[i].opa_select),
+				.opb_select(id_packet_internal[i].opb_select),
+				.alu_func(id_packet_internal[i].alu_func),
+				.dest_reg(dest_reg_select[i]),
+				.rd_mem(id_packet_internal[i].rd_mem),
+				.wr_mem(id_packet_internal[i].wr_mem),
+				.cond_branch(id_packet_internal[i].cond_branch),
+				.uncond_branch(id_packet_internal[i].uncond_branch),
+				.csr_op(id_packet_internal[i].csr_op),
+				.halt(id_packet_internal[i].halt),
+				.illegal(id_packet_internal[i].illegal),
+				.valid_inst(id_packet_internal[i].valid)
+			);
+	endgenerate
 
 	// mux to generate dest_reg_idx based on
 	// the dest_reg_select output from decoder
 	always_comb begin
-		case (dest_reg_select_0)
-			DEST_RD:    id_packet_internal_0.dest_reg_idx = sorted_packet_0.inst.r.rd;
-			DEST_NONE:  id_packet_internal_0.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal_0.dest_reg_idx = `ZERO_REG; 
+		case (dest_reg_select[0])
+			DEST_RD:    id_packet_internal[0].dest_reg_idx = sorted_packet[0].inst.r.rd;
+			DEST_NONE:  id_packet_internal[0].dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal[0].dest_reg_idx = `ZERO_REG; 
 		endcase
 		
-		case (dest_reg_select_1)
-			DEST_RD:    id_packet_internal_1.dest_reg_idx = sorted_packet_1.inst.r.rd;
-			DEST_NONE:  id_packet_internal_1.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal_1.dest_reg_idx = `ZERO_REG; 
+		case (dest_reg_select[1])
+			DEST_RD:    id_packet_internal[1].dest_reg_idx = sorted_packet[1].inst.r.rd;
+			DEST_NONE:  id_packet_internal[1].dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal[1].dest_reg_idx = `ZERO_REG; 
 		endcase
 		
-		case (dest_reg_select_2)
-			DEST_RD:    id_packet_internal_2.dest_reg_idx = sorted_packet_2.inst.r.rd;
-			DEST_NONE:  id_packet_internal_2.dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal_2.dest_reg_idx = `ZERO_REG; 
+		case (dest_reg_select[2])
+			DEST_RD:    id_packet_internal[2].dest_reg_idx = sorted_packet[2].inst.r.rd;
+			DEST_NONE:  id_packet_internal[2].dest_reg_idx = `ZERO_REG;
+			default:    id_packet_internal[2].dest_reg_idx = `ZERO_REG; 
 		endcase
 	end
 	
@@ -413,24 +352,16 @@ module id_stage(
 	
 `ifdef USE_DETECTION
 	detection_unit detection_unit_0(
-        .id_packet_0(id_packet_internal_0),
-        .id_packet_1(id_packet_internal_1),
-        .id_packet_2(id_packet_internal_2),
-        .ex_packet_0(id_ex_packet_in_0),
-        .ex_packet_1(id_ex_packet_in_1),
-        .ex_packet_2(id_ex_packet_in_2),
-        .mem_packet_0(ex_mem_packet_in_0),
-        .mem_packet_1(ex_mem_packet_in_1),
-        .mem_packet_2(ex_mem_packet_in_2),
-        .id_packet_out_0(id_packet_out_0),
-        .id_packet_out_1(id_packet_out_1),
-        .id_packet_out_2(id_packet_out_2),
+        .id_packet(id_packet_internal),
+        .ex_packet(id_ex_packet_in),
+        .mem_packet(ex_mem_packet_in),
+        .id_packet_out(id_packet_out),
         .rollback(rollback)
     );
 `else
-	assign id_packet_out_0 = id_packet_internal_0;
-	assign id_packet_out_1 = id_packet_internal_1;
-	assign id_packet_out_2 = id_packet_internal_2;
+	assign id_packet_out[0] = id_packet_internal[0];
+	assign id_packet_out[1] = id_packet_internal[1];
+	assign id_packet_out[2] = id_packet_internal[2];
 `endif
 
 	
@@ -440,20 +371,20 @@ module id_stage(
 	   else
 	       pre_rollback <= `SD rollback;
 	       
-	   hold_reg_0.valid <= `SD id_packet_out_0.valid;
-	   hold_reg_0.inst  <= `SD id_packet_out_0.inst;
-	   hold_reg_0.NPC   <= `SD id_packet_out_0.NPC;
-	   hold_reg_0.PC    <= `SD id_packet_out_0.PC;
+	   hold_reg[0].valid <= `SD id_packet_out[0].valid;
+	   hold_reg[0].inst  <= `SD id_packet_out[0].inst;
+	   hold_reg[0].NPC   <= `SD id_packet_out[0].NPC;
+	   hold_reg[0].PC    <= `SD id_packet_out[0].PC;
 	   
-	   hold_reg_1.valid <= `SD id_packet_out_1.valid;
-	   hold_reg_1.inst  <= `SD id_packet_out_1.inst;
-	   hold_reg_1.NPC   <= `SD id_packet_out_1.NPC;
-	   hold_reg_1.PC    <= `SD id_packet_out_1.PC;
+	   hold_reg[1].valid <= `SD id_packet_out[1].valid;
+	   hold_reg[1].inst  <= `SD id_packet_out[1].inst;
+	   hold_reg[1].NPC   <= `SD id_packet_out[1].NPC;
+	   hold_reg[1].PC    <= `SD id_packet_out[1].PC;
 	   
-	   hold_reg_2.valid <= `SD id_packet_out_2.valid;
-	   hold_reg_2.inst  <= `SD id_packet_out_2.inst;
-	   hold_reg_2.NPC   <= `SD id_packet_out_2.NPC;
-	   hold_reg_2.PC    <= `SD id_packet_out_2.PC;
+	   hold_reg[2].valid <= `SD id_packet_out[2].valid;
+	   hold_reg[2].inst  <= `SD id_packet_out[2].inst;
+	   hold_reg[2].NPC   <= `SD id_packet_out[2].NPC;
+	   hold_reg[2].PC    <= `SD id_packet_out[2].PC;
 	end
 	
 	

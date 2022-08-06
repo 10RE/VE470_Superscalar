@@ -13,125 +13,127 @@
 `timescale 1ns/100ps
 
 module superregfile(
-        input   [4:0] rda_idx_0, rdb_idx_0, wr_idx_0, rda_idx_1, rdb_idx_1, wr_idx_1, rda_idx_2, rdb_idx_2, wr_idx_2,    // read/write index
-        input  [`XLEN-1:0] wr_data_0, wr_data_1, wr_data_2,            // write data
-        input         wr_en_0, wr_en_1, wr_en_2, wr_clk,
+        input   [4:0] rda_idx[2:0], rdb_idx[2:0], wr_idx[2:0],    // read/write index
+        input  [`XLEN-1:0] wr_data[2:0],            // write data
+        input         wr_en[2:0], wr_clk,
 
-        output logic [`XLEN-1:0] rda_out_0, rdb_out_0, rda_out_1, rdb_out_1, rda_out_2, rdb_out_2    // read data
+        output logic [`XLEN-1:0] rda_out[2:0], rdb_out[2:0]    // read data
           
       );
   
   logic    [31:0] [`XLEN-1:0] registers;   // 32, 64-bit Registers
 
-  wire   [`XLEN-1:0] rda_reg_0 = registers[rda_idx_0];
-  wire   [`XLEN-1:0] rdb_reg_0 = registers[rdb_idx_0];
-  wire   [`XLEN-1:0] rda_reg_1 = registers[rda_idx_1];
-  wire   [`XLEN-1:0] rdb_reg_1 = registers[rdb_idx_1];
-  wire   [`XLEN-1:0] rda_reg_2 = registers[rda_idx_2];
-  wire   [`XLEN-1:0] rdb_reg_2 = registers[rdb_idx_2];
+  wire [`XLEN-1:0] rda_reg[2:0],rdb_reg[2:0];
+
+  assign rda_reg[0] = registers[rda_idx[0]];
+  assign rdb_reg[0] = registers[rdb_idx[0]];
+  assign rda_reg[1] = registers[rda_idx[1]];
+  assign rdb_reg[1] = registers[rdb_idx[1]];
+  assign rda_reg[2] = registers[rda_idx[2]];
+  assign rdb_reg[2] = registers[rdb_idx[2]];
 
   //
-  // Read port A_0
+  // Read port A[0]
   //
   always_comb
-    if (rda_idx_0 == `ZERO_REG)
-      rda_out_0 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_0))
-      rda_out_0 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rda_idx_0))
-      rda_out_0 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_0))
-      rda_out_0 = wr_data_0;
+    if (rda_idx[0] == `ZERO_REG)
+      rda_out[0] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rda_idx[0]))
+      rda_out[0] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rda_idx[0]))
+      rda_out[0] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rda_idx[0]))
+      rda_out[0] = wr_data[0];
     else
-      rda_out_0 = rda_reg_0;
+      rda_out[0] = rda_reg[0];
 
   //
-  // Read port B_0
+  // Read port B[0]
   //
   always_comb
-    if (rdb_idx_0 == `ZERO_REG)
-      rdb_out_0 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rdb_idx_0))
-      rdb_out_0 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rdb_idx_0))
-      rdb_out_0 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rdb_idx_0))
-      rdb_out_0 = wr_data_0;
+    if (rdb_idx[0] == `ZERO_REG)
+      rdb_out[0] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rdb_idx[0]))
+      rdb_out[0] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rdb_idx[0]))
+      rdb_out[0] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rdb_idx[0]))
+      rdb_out[0] = wr_data[0];
     else
-      rdb_out_0 = rdb_reg_0;
+      rdb_out[0] = rdb_reg[0];
       
   //
-  // Read port A_1
+  // Read port A[1]
   //
   always_comb
-    if (rda_idx_1 == `ZERO_REG)
-      rda_out_1 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_1))
-      rda_out_1 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rda_idx_1))
-      rda_out_1 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_1))
-      rda_out_1 = wr_data_0;
+    if (rda_idx[1] == `ZERO_REG)
+      rda_out[1] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rda_idx[1]))
+      rda_out[1] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rda_idx[1]))
+      rda_out[1] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rda_idx[1]))
+      rda_out[1] = wr_data[0];
     else
-      rda_out_1 = rda_reg_1;
+      rda_out[1] = rda_reg[1];
 
   //
-  // Read port B_1
+  // Read port B[1]
   //
   always_comb
-    if (rdb_idx_1 == `ZERO_REG)
-      rdb_out_1 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rdb_idx_1))
-      rdb_out_1 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rdb_idx_1))
-      rdb_out_1 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rdb_idx_1))
-      rdb_out_1 = wr_data_0;
+    if (rdb_idx[1] == `ZERO_REG)
+      rdb_out[1] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rdb_idx[1]))
+      rdb_out[1] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rdb_idx[1]))
+      rdb_out[1] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rdb_idx[1]))
+      rdb_out[1] = wr_data[0];
     else
-      rdb_out_1 = rdb_reg_1;
+      rdb_out[1] = rdb_reg[1];
       
   //
-  // Read port A_2
+  // Read port A[2]
   //
   always_comb
-    if (rda_idx_2 == `ZERO_REG)
-      rda_out_2 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_2))
-      rda_out_2 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rda_idx_2))
-      rda_out_2 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rda_idx_2))
-      rda_out_2 = wr_data_0;
+    if (rda_idx[2] == `ZERO_REG)
+      rda_out[2] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rda_idx[2]))
+      rda_out[2] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rda_idx[2]))
+      rda_out[2] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rda_idx[2]))
+      rda_out[2] = wr_data[0];
     else
-      rda_out_2 = rda_reg_2;
+      rda_out[2] = rda_reg[2];
 
   //
-  // Read port B_2
+  // Read port B[2]
   //
   always_comb
-    if (rdb_idx_2 == `ZERO_REG)
-      rdb_out_2 = 0;
-    else if (wr_en_2 && (wr_idx_2 == rda_idx_2))
-      rdb_out_2 = wr_data_2;  // internal forwarding
-    else if (wr_en_1 && (wr_idx_1 == rdb_idx_2))
-      rdb_out_2 = wr_data_1;
-    else if (wr_en_0 && (wr_idx_0 == rdb_idx_2))
-      rdb_out_2 = wr_data_0;
+    if (rdb_idx[2] == `ZERO_REG)
+      rdb_out[2] = 0;
+    else if (wr_en[2] && (wr_idx[2] == rda_idx[2]))
+      rdb_out[2] = wr_data[2];  // internal forwarding
+    else if (wr_en[1] && (wr_idx[1] == rdb_idx[2]))
+      rdb_out[2] = wr_data[1];
+    else if (wr_en[0] && (wr_idx[0] == rdb_idx[2]))
+      rdb_out[2] = wr_data[0];
     else
-      rdb_out_2 = rdb_reg_2;
+      rdb_out[2] = rdb_reg[2];
 
   //
   // Write port
   //
   always_ff @(posedge wr_clk) begin
-    if (wr_en_0) begin
-      registers[wr_idx_0] <= `SD wr_data_0;
+    if (wr_en[0]) begin
+      registers[wr_idx[0]] <= `SD wr_data[0];
     end
-    if (wr_en_1) begin
-      registers[wr_idx_1] <= `SD wr_data_1;
+    if (wr_en[1]) begin
+      registers[wr_idx[1]] <= `SD wr_data[1];
     end
-    if (wr_en_2) begin
-      registers[wr_idx_2] <= `SD wr_data_2;
+    if (wr_en[2]) begin
+      registers[wr_idx[2]] <= `SD wr_data[2];
     end
   end
 
