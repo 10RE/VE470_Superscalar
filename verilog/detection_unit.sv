@@ -8,38 +8,38 @@
 
 
 module detection_unit(
-    input ID_EX_PACKET id_packet[2:0],
+    input ID_EX_PACKET id_packet[`WAYS-1:0],
 
-    input ID_EX_PACKET ex_packet[2:0],
+    input ID_EX_PACKET ex_packet[`WAYS-1:0],
 
-    input EX_MEM_PACKET mem_packet[2:0],
+    input EX_MEM_PACKET mem_packet[`WAYS-1:0],
 
-    output ID_EX_PACKET id_packet_out[2:0],
+    output ID_EX_PACKET id_packet_out[`WAYS-1:0],
 
     output logic [1:0] rollback
 
 `ifdef DETECTION_UNIT_TEST
     ,
-    output RS_SELECT [2:0] forwarding_A,
-    output RS_SELECT [2:0] forwarding_B
+    output RS_SELECT [`WAYS-1:0] forwarding_A,
+    output RS_SELECT [`WAYS-1:0] forwarding_B
 `endif
 
 );
-    logic [4:0] mem_dest_reg [2:0];
+    logic [4:0] mem_dest_reg [`WAYS-1:0];
     assign mem_dest_reg={
         mem_packet[2].dest_reg_idx,
         mem_packet[1].dest_reg_idx,
         mem_packet[0].dest_reg_idx
     };
 
-    logic [4:0] ex_dest_reg [2:0];
+    logic [4:0] ex_dest_reg [`WAYS-1:0];
     assign ex_dest_reg={
         ex_packet[2].dest_reg_idx,
         ex_packet[1].dest_reg_idx,
         ex_packet[0].dest_reg_idx
     };
 
-    logic ex_load [2:0];
+    logic ex_load [`WAYS-1:0];
     assign ex_load={
         ex_packet[2].rd_mem,
         ex_packet[1].rd_mem,

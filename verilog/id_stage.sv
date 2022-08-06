@@ -237,7 +237,7 @@ module id_stage(
 	
 	input ex_mem_take_branch,
 	
-	output [1:0] rollback,
+	output [`ROLLBACK_WIDTH-1:0] rollback,
 	
 	output ID_EX_PACKET id_packet_out[`WAYS-1:0]
 	
@@ -246,7 +246,7 @@ module id_stage(
 	`endif
 );
     
-    logic [1:0] pre_rollback;
+    logic [`ROLLBACK_WIDTH-1:0] pre_rollback;
     
     
     IF_ID_PACKET hold_reg[`WAYS-1:0];
@@ -278,8 +278,8 @@ module id_stage(
     
 	DEST_REG_SEL dest_reg_select[`WAYS-1:0]; 
 
-	wire [4:0] rda_idx[2:0], rdb_idx[2:0];
-	wire [`XLEN-1:0] rda_out[2:0], rdb_out[2:0];
+	wire [4:0] rda_idx[`WAYS-1:0], rdb_idx[`WAYS-1:0];
+	wire [`XLEN-1:0] rda_out[`WAYS-1:0], rdb_out[`WAYS-1:0];
 	genvar i;
     generate
 		for (i=0;i<`WAYS;i++) begin
@@ -329,23 +329,12 @@ module id_stage(
 	// mux to generate dest_reg_idx based on
 	// the dest_reg_select output from decoder
 	always_comb begin
-		case (dest_reg_select[0])
-			DEST_RD:    id_packet_internal[0].dest_reg_idx = sorted_packet[0].inst.r.rd;
-			DEST_NONE:  id_packet_internal[0].dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal[0].dest_reg_idx = `ZERO_REG; 
-		endcase
-		
-		case (dest_reg_select[1])
-			DEST_RD:    id_packet_internal[1].dest_reg_idx = sorted_packet[1].inst.r.rd;
-			DEST_NONE:  id_packet_internal[1].dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal[1].dest_reg_idx = `ZERO_REG; 
-		endcase
-		
-		case (dest_reg_select[2])
-			DEST_RD:    id_packet_internal[2].dest_reg_idx = sorted_packet[2].inst.r.rd;
-			DEST_NONE:  id_packet_internal[2].dest_reg_idx = `ZERO_REG;
-			default:    id_packet_internal[2].dest_reg_idx = `ZERO_REG; 
-		endcase
+		foreach(dest_reg_select[i])
+			case (dest_reg_select[i])
+				DEST_RD:    id_packet_internal[i].dest_reg_idx = sorted_packet[i].inst.r.rd;
+				DEST_NONE:  id_packet_internal[i].dest_reg_idx = `ZERO_REG;
+				default:    id_packet_internal[i].dest_reg_idx = `ZERO_REG; 
+			endcase
 	end
 	
 	

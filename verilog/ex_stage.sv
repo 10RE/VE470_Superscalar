@@ -102,8 +102,8 @@ module single_ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
 	input ID_EX_PACKET   id_ex_packet_in,
-	input [`XLEN-1:0] ex_result[2:0],
-	input [`XLEN-1:0] mem_result[2:0],
+	input [`XLEN-1:0] ex_result[`WAYS-1:0],
+	input [`XLEN-1:0] mem_result[`WAYS-1:0],
 	output EX_MEM_PACKET ex_packet_out
 );
 
@@ -200,16 +200,17 @@ module single_ex_stage(
 	 //	unconditional, or conditional and the condition is true
 	assign ex_packet_out.take_branch = id_ex_packet_in.uncond_branch
 		                          | (id_ex_packet_in.cond_branch & brcond_result);
+	assign ex_packet_out.is_branch = id_ex_packet_in.uncond_branch | id_ex_packet_in.cond_branch;
 endmodule // single_ex_stage
 
 
 module ex_stage(
 	input clock,               // system clock
 	input reset,               // system reset
-	input ID_EX_PACKET   id_ex_packet_in[2:0],
-	input [`XLEN-1:0] ex_result[2:0],
-	input [`XLEN-1:0] mem_result [2:0],
-	output EX_MEM_PACKET ex_packet_out[2:0],
+	input ID_EX_PACKET   id_ex_packet_in[`WAYS-1:0],
+	input [`XLEN-1:0] ex_result[`WAYS-1:0],
+	input [`XLEN-1:0] mem_result [`WAYS-1:0],
+	output EX_MEM_PACKET ex_packet_out[`WAYS-1:0],
 	output logic ex_mem_take_branch,
 	output logic [`XLEN-1:0] ex_mem_target_pc,
 	output logic [1:0] ex_mem_branch_way

@@ -13,17 +13,17 @@
 `timescale 1ns/100ps
 
 module superregfile(
-        input   [4:0] rda_idx[2:0], rdb_idx[2:0], wr_idx[2:0],    // read/write index
-        input  [`XLEN-1:0] wr_data[2:0],            // write data
+        input   [4:0] rda_idx[`WAYS-1:0], rdb_idx[`WAYS-1:0], wr_idx[`WAYS-1:0],    // read/write index
+        input  [`XLEN-1:0] wr_data[`WAYS-1:0],            // write data
         input         wr_en[2:0], wr_clk,
 
-        output logic [`XLEN-1:0] rda_out[2:0], rdb_out[2:0]    // read data
+        output logic [`XLEN-1:0] rda_out[`WAYS-1:0], rdb_out[`WAYS-1:0]    // read data
           
       );
   
   logic    [31:0] [`XLEN-1:0] registers;   // 32, 64-bit Registers
 
-  wire [`XLEN-1:0] rda_reg[2:0],rdb_reg[2:0];
+  wire [`XLEN-1:0] rda_reg[`WAYS-1:0],rdb_reg[`WAYS-1:0];
 
   assign rda_reg[0] = registers[rda_idx[0]];
   assign rdb_reg[0] = registers[rdb_idx[0]];

@@ -73,22 +73,22 @@ endmodule // single_mem_stage
 module mem_stage(
 	input         clock,              // system clock
 	input         reset,              // system reset
-	input  EX_MEM_PACKET ex_mem_packet_in[2:0],      // write memory? (from decoder)
+	input  EX_MEM_PACKET ex_mem_packet_in[`WAYS-1:0],      // write memory? (from decoder)
 	
-	input  [`XLEN-1:0] Dmem2proc_data[2:0],
+	input  [`XLEN-1:0] Dmem2proc_data[`WAYS-1:0],
 	
-	output logic [`XLEN-1:0] mem_result_out[2:0],      // outgoing instruction result (to MEM/WB)
+	output logic [`XLEN-1:0] mem_result_out[`WAYS-1:0],      // outgoing instruction result (to MEM/WB)
 
-	output logic [1:0] proc2Dmem_command[2:0],
+	output logic [1:0] proc2Dmem_command[`WAYS-1:0],
 
-	output MEM_SIZE proc2Dmem_size[2:0],
+	output MEM_SIZE proc2Dmem_size[`WAYS-1:0],
 
-	output logic [`XLEN-1:0] proc2Dmem_addr[2:0],      // Address sent to data-memory
+	output logic [`XLEN-1:0] proc2Dmem_addr[`WAYS-1:0],      // Address sent to data-memory
 
-	output logic [`XLEN-1:0] proc2Dmem_data[2:0]      // Data sent to data-memory
+	output logic [`XLEN-1:0] proc2Dmem_data[`WAYS-1:0]      // Data sent to data-memory
 );
 
-single_mem_stage single_mem_stage[2:0] (
+single_mem_stage single_mem_stage[`WAYS-1:0] (
 	.clock(clock),             
     .reset(reset),              
   	.ex_mem_packet_in(ex_mem_packet_in),      

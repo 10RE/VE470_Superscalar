@@ -17,6 +17,7 @@
 //////////////////////////////////////////////
 
 `define WAYS				   3
+`define ROLLBACK_WIDTH         2 //ceil(log(WAYS+1))
 `define DEBUG
 `define NUM_MEM_TAGS           8
 `define MEM_LATENCY_IN_CYCLES  0
@@ -302,6 +303,7 @@ typedef struct packed {
 	logic [`XLEN-1:0] alu_result; // alu_result
 	logic [`XLEN-1:0] NPC; //pc + 4
 	logic             take_branch; // is this a taken branch?
+	logic 			  is_branch;
 	//pass throughs from decode stage
 	logic [`XLEN-1:0] rs2_value;
 	logic             rd_mem, wr_mem;
