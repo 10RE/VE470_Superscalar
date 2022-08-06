@@ -263,6 +263,7 @@ module id_stage(
 			2:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[2],		    hold_reg[3],			if_id_packet_in[0], if_id_packet_in[1]};
 			3:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[1],		    hold_reg[2],			hold_reg[3],		if_id_packet_in[0]};
 			4:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[0],		    hold_reg[1],			hold_reg[2],        hold_reg[3]};
+            default:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={0,		    0,			0,        0};//never happens
 		endcase
 		
 	end
@@ -359,30 +360,34 @@ module id_stage(
 
 	
 	always_ff @(posedge clock) begin
-	   if (ex_mem_take_branch) 
-	       pre_rollback <= `SD 0;
-	   else
-	       pre_rollback <= `SD rollback;
-	       
-	   hold_reg[0].valid <= `SD id_packet_out[0].valid;
-	   hold_reg[0].inst  <= `SD id_packet_out[0].inst;
-	   hold_reg[0].NPC   <= `SD id_packet_out[0].NPC;
-	   hold_reg[0].PC    <= `SD id_packet_out[0].PC;
-	   
-	   hold_reg[1].valid <= `SD id_packet_out[1].valid;
-	   hold_reg[1].inst  <= `SD id_packet_out[1].inst;
-	   hold_reg[1].NPC   <= `SD id_packet_out[1].NPC;
-	   hold_reg[1].PC    <= `SD id_packet_out[1].PC;
-	   
-	   hold_reg[2].valid <= `SD id_packet_out[2].valid;
-	   hold_reg[2].inst  <= `SD id_packet_out[2].inst;
-	   hold_reg[2].NPC   <= `SD id_packet_out[2].NPC;
-	   hold_reg[2].PC    <= `SD id_packet_out[2].PC;
-	   
-	   hold_reg[3].valid <= `SD id_packet_out[3].valid;
-	   hold_reg[3].inst  <= `SD id_packet_out[3].inst;
-	   hold_reg[3].NPC   <= `SD id_packet_out[3].NPC;
-	   hold_reg[3].PC    <= `SD id_packet_out[3].PC;
+        if(reset)begin
+            hold_reg<={0,0,0,0};
+        end else begin
+            if (ex_mem_take_branch) 
+                pre_rollback <= `SD 0;
+            else
+                pre_rollback <= `SD rollback;
+                
+            hold_reg[0].valid <= `SD id_packet_out[0].valid;
+            hold_reg[0].inst  <= `SD id_packet_out[0].inst;
+            hold_reg[0].NPC   <= `SD id_packet_out[0].NPC;
+            hold_reg[0].PC    <= `SD id_packet_out[0].PC;
+            
+            hold_reg[1].valid <= `SD id_packet_out[1].valid;
+            hold_reg[1].inst  <= `SD id_packet_out[1].inst;
+            hold_reg[1].NPC   <= `SD id_packet_out[1].NPC;
+            hold_reg[1].PC    <= `SD id_packet_out[1].PC;
+            
+            hold_reg[2].valid <= `SD id_packet_out[2].valid;
+            hold_reg[2].inst  <= `SD id_packet_out[2].inst;
+            hold_reg[2].NPC   <= `SD id_packet_out[2].NPC;
+            hold_reg[2].PC    <= `SD id_packet_out[2].PC;
+            
+            hold_reg[3].valid <= `SD id_packet_out[3].valid;
+            hold_reg[3].inst  <= `SD id_packet_out[3].inst;
+            hold_reg[3].NPC   <= `SD id_packet_out[3].NPC;
+            hold_reg[3].PC    <= `SD id_packet_out[3].PC;
+        end
 	end
 	
 	

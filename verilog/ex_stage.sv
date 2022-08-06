@@ -217,7 +217,7 @@ module ex_stage(
 	output EX_MEM_PACKET ex_packet_out[`WAYS-1:0],
 	output logic ex_mem_take_branch,
 	output logic [`XLEN-1:0] ex_mem_target_pc,
-	output logic [1:0] ex_mem_branch_way
+	output logic [`ROLLBACK_WIDTH-1:0] ex_mem_branch_way
 );
 	
 	single_ex_stage ex_stage_0 (

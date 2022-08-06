@@ -370,7 +370,7 @@ endgenerate
 			id_ex_packet[0] <= `SD id_packet[0];
 			id_ex_packet[1] <= `SD id_packet[1];
 			id_ex_packet[2] <= `SD id_packet[2];
-			id_ex_packet[2] <= `SD `EMPTY_ID_PACKET;
+			id_ex_packet[3] <= `SD `EMPTY_ID_PACKET;
 		end else begin 
 			id_ex_packet[0] <= `SD id_packet[0];
 			id_ex_packet[1] <= `SD id_packet[1];

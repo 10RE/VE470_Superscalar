@@ -16,7 +16,7 @@ module detection_unit(
 
     output ID_EX_PACKET id_packet_out[`WAYS-1:0],
 
-    output logic [`ROLLBACK_WIDTH:0] rollback
+    output logic [`ROLLBACK_WIDTH-1:0] rollback
 
 );
     logic [4:0] mem_dest_reg [`WAYS-1:0];
@@ -97,12 +97,12 @@ module single_way_select(
     end
 endmodule
 
-    logic ex_load_depend[`WAYS-1];
+    logic ex_load_depend[`WAYS-1:0];
 
     single_way_select ways[`WAYS-1:0] (
-        .id_packet(id_packet[0]),
-        .id_packet_out(id_packet_out[0]),
-        .ex_load_depend(ex_load_depend[0])
+        .id_packet(id_packet),
+        .id_packet_out(id_packet_out),
+        .ex_load_depend(ex_load_depend)
     );
 
 

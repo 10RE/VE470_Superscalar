@@ -207,7 +207,7 @@ module testbench;
 		
 		//Open header AFTER throwing the reset otherwise the reset state is displayed
 		print_header("                                                                            D-MEM Bus &\n");
-		print_header("Cycle:      IF1     |     IF2     |     IF3     |     ID1     |     ID2     |     ID3     |     EX1     |     EX2     |     EX3     |     MEM1    |     MEM2    |     MEM3    |     WB1     |     WB2     |     WB3     ");
+		print_header("Cycle:      IF1     |     IF2     |     IF3     |     IF4     |     ID1     |     ID2     |     ID3     |     ID4     |     EX1     |     EX2     |     EX3     |     EX4     |     MEM1    |     MEM2    |     MEM3    |     MEM4    |     WB1     |     WB2     |     WB3     |     WB4     ");
 	end
 
 
@@ -219,7 +219,7 @@ module testbench;
 			instr_count <= `SD 0;
 		end else begin
 			clock_count <= `SD (clock_count + 1);
-			instr_count <= `SD (instr_count + pipeline_completed_inst[0] + pipeline_completed_inst[1] + pipeline_completed_inst[2]);
+			instr_count <= `SD (instr_count + pipeline_completed_inst[0] + pipeline_completed_inst[1] + pipeline_completed_inst[2] + pipeline_completed_inst[3]);
 		end
 	end  
 	
@@ -238,22 +238,27 @@ module testbench;
 			 print_stage(" ", if_IR_out[0], if_NPC_out[0][31:0], {31'b0,if_valid_inst_out[0]});
 			 print_stage("|", if_IR_out[1], if_NPC_out[1][31:0], {31'b0,if_valid_inst_out[1]});
 			 print_stage("|", if_IR_out[2], if_NPC_out[2][31:0], {31'b0,if_valid_inst_out[2]});
+			 print_stage("|", if_IR_out[3], if_NPC_out[3][31:0], {31'b0,if_valid_inst_out[3]});
 
 			 print_stage("|", if_id_IR[0], if_id_NPC[0][31:0], {31'b0,if_id_valid_inst[0]});
 			 print_stage("|", if_id_IR[1], if_id_NPC[1][31:0], {31'b0,if_id_valid_inst[1]});
 			 print_stage("|", if_id_IR[2], if_id_NPC[2][31:0], {31'b0,if_id_valid_inst[2]});
+			 print_stage("|", if_id_IR[3], if_id_NPC[3][31:0], {31'b0,if_id_valid_inst[3]});
 
 			 print_stage("|", id_ex_IR[0], id_ex_NPC[0][31:0], {31'b0,id_ex_valid_inst[0]});
 			 print_stage("|", id_ex_IR[1], id_ex_NPC[1][31:0], {31'b0,id_ex_valid_inst[1]});
 			 print_stage("|", id_ex_IR[2], id_ex_NPC[2][31:0], {31'b0,id_ex_valid_inst[2]});
+			 print_stage("|", id_ex_IR[3], id_ex_NPC[3][31:0], {31'b0,id_ex_valid_inst[3]});
 
 			 print_stage("|", ex_mem_IR[0], ex_mem_NPC[0][31:0], {31'b0,ex_mem_valid_inst[0]});
 			 print_stage("|", ex_mem_IR[1], ex_mem_NPC[1][31:0], {31'b0,ex_mem_valid_inst[1]});
 			 print_stage("|", ex_mem_IR[2], ex_mem_NPC[2][31:0], {31'b0,ex_mem_valid_inst[2]});
+			 print_stage("|", ex_mem_IR[3], ex_mem_NPC[3][31:0], {31'b0,ex_mem_valid_inst[3]});
 
 			 print_stage("|", mem_wb_IR[0], mem_wb_NPC[0][31:0], {31'b0,mem_wb_valid_inst[0]});
 			 print_stage("|", mem_wb_IR[1], mem_wb_NPC[1][31:0], {31'b0,mem_wb_valid_inst[1]});
 			 print_stage("|", mem_wb_IR[2], mem_wb_NPC[2][31:0], {31'b0,mem_wb_valid_inst[2]});
+			 print_stage("|", mem_wb_IR[3], mem_wb_NPC[3][31:0], {31'b0,mem_wb_valid_inst[3]});
 
 			 /*
 			 print_reg(32'b0, pipeline_commit_wr_data[31:0],
@@ -290,6 +295,15 @@ module testbench;
 						pipeline_commit_wr_data[2]);
 				else
 					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[2]-4);
+			end
+			if(pipeline_completed_inst[3] > 0) begin
+				if(pipeline_commit_wr_en[3] && pipeline_completed_inst[3] > 0)
+					$fdisplay(wb_fileno, "PC=%x, REG[%d]=%x",
+						pipeline_commit_NPC[3]-4,
+						pipeline_commit_wr_idx[3],
+						pipeline_commit_wr_data[3]);
+				else
+					$fdisplay(wb_fileno, "PC=%x, ---",pipeline_commit_NPC[3]-4);
 			end
 			
 			// deal with any halting conditions

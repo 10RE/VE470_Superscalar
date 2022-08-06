@@ -65,7 +65,7 @@ module if_stage(
     
     input [`ROLLBACK_WIDTH-1:0] rollback,
     
-    output logic [`ROLLBACK_WIDTH:0] invalid_way
+    output logic [`ROLLBACK_WIDTH-1:0] invalid_way
 );
 
 	logic           PC_enable;
@@ -77,14 +77,14 @@ module if_stage(
 		.structural_haz(structural_haz)
 	);
 
-	logic 			prediction;
-	simple_branch_predictor sbp(
-		.clock(clock),
-		.reset(reset),
-		.ex_mem_is_branch(ex_mem_is_branch),
-		.ex_mem_branch_way(ex_mem_branch_way),
-		.prediction(prediction)
-	);
+	// logic 			prediction;
+	// simple_branch_predictor sbp(
+	// 	.clock(clock),
+	// 	.reset(reset),
+	// 	.ex_mem_is_branch(ex_mem_is_branch),
+	// 	.ex_mem_branch_way(ex_mem_branch_way),
+	// 	.prediction(prediction)
+	// );
 	//********************* set the fetch address to be sent to the I_memory
 
 `define PREFETCH_SIZE 16
@@ -142,6 +142,7 @@ module if_stage(
 	
     always_ff @(posedge clock) begin
 		if(reset) begin
+			prefetch_queue <= `SD '{16{0}};
 			prefetch_PC <= `SD 0;       // initial PC value is 0
 			tail <= `SD 0;
 		end
