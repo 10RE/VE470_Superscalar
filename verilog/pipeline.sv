@@ -589,17 +589,45 @@ module pipeline (
 			// 	// EX outputs
 			// 	ex_mem_packet <= `SD ex_packet;
 			// end // if
-			ex_mem_IR[0]     <= `SD id_ex_IR[0];
-			ex_mem_IR[1]     <= `SD id_ex_IR[1];
-			ex_mem_IR[2]     <= `SD id_ex_IR[2];
-
-			ex_mem_packet[0] <= `SD ex_packet[0];
-			ex_mem_packet[1] <= `SD ex_packet[1];
-			ex_mem_packet[2] <= `SD ex_packet[2];
-
-			mem_take_branch <= `SD ex_mem_take_branch;
-			mem_target_pc 	<= `SD ex_mem_target_pc;
-			mem_branch_way 	<= `SD ex_mem_branch_way;
+			
+			if (ex_mem_take_branch && ex_mem_branch_way == 0) begin
+                ex_mem_IR[0]     <= `SD id_ex_IR[0];
+                ex_mem_IR[1]     <= `SD `NOP;
+                ex_mem_IR[2]     <= `SD `NOP;
+    
+                ex_mem_packet[0] <= `SD ex_packet[0];
+                ex_mem_packet[1] <= `SD 0;
+                ex_mem_packet[2] <= `SD 0;
+    
+                mem_take_branch <= `SD ex_mem_take_branch;
+                mem_target_pc 	<= `SD ex_mem_target_pc;
+                mem_branch_way 	<= `SD ex_mem_branch_way;
+			end else if (ex_mem_take_branch && ex_mem_branch_way == 1) begin
+                ex_mem_IR[0]     <= `SD id_ex_IR[0];
+                ex_mem_IR[1]     <= `SD id_ex_IR[1];
+                ex_mem_IR[2]     <= `SD `NOP;
+    
+                ex_mem_packet[0] <= `SD ex_packet[0];
+                ex_mem_packet[1] <= `SD ex_packet[1];
+                ex_mem_packet[2] <= `SD 0;
+    
+                mem_take_branch <= `SD ex_mem_take_branch;
+                mem_target_pc 	<= `SD ex_mem_target_pc;
+                mem_branch_way 	<= `SD ex_mem_branch_way;
+			end else begin
+                ex_mem_IR[0]     <= `SD id_ex_IR[0];
+                ex_mem_IR[1]     <= `SD id_ex_IR[1];
+                ex_mem_IR[2]     <= `SD id_ex_IR[2];
+    
+                ex_mem_packet[0] <= `SD ex_packet[0];
+                ex_mem_packet[1] <= `SD ex_packet[1];
+                ex_mem_packet[2] <= `SD ex_packet[2];
+    
+                mem_take_branch <= `SD ex_mem_take_branch;
+                mem_target_pc 	<= `SD ex_mem_target_pc;
+                mem_branch_way 	<= `SD ex_mem_branch_way;
+			end
+			
 		end // else: !if(reset)
 	end // always
 
