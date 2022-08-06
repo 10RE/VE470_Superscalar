@@ -16,8 +16,8 @@
 //
 //////////////////////////////////////////////
 
-`define WAYS				   3
-`define ROLLBACK_WIDTH         2 //ceil(log(WAYS+1))
+`define WAYS				   4
+`define ROLLBACK_WIDTH         3 //ceil(log(WAYS+1))
 `define DEBUG
 `define NUM_MEM_TAGS           8
 `define MEM_LATENCY_IN_CYCLES  0
@@ -90,14 +90,16 @@ typedef enum logic [3:0] {
 	OPB_IS_J_IMM  = 4'h5
 } ALU_OPB_SELECT;
 
-typedef enum logic [2:0] {
-	RS_IS_RS  = 3'h0,
-	RS_IS_EX_0  = 3'h1,
-	RS_IS_MEM_0 = 3'h2,
-	RS_IS_EX_1  = 3'h3,
-	RS_IS_MEM_1 = 3'h4,
-	RS_IS_EX_2  = 3'h5,
-	RS_IS_MEM_2 = 3'h6
+typedef enum logic [3:0] {
+	RS_IS_RS  = 4'h0,
+	RS_IS_EX_0  = 4'h1,
+	RS_IS_MEM_0 = 4'h2,
+	RS_IS_EX_1  = 4'h3,
+	RS_IS_MEM_1 = 4'h4,
+	RS_IS_EX_2  = 4'h5,
+	RS_IS_MEM_2 = 4'h6,
+	RS_IS_EX_3  = 4'h7,
+	RS_IS_MEM_3 = 4'h8
 } RS_SELECT;
 
 //

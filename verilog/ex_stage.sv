@@ -136,6 +136,8 @@ module single_ex_stage(
 			RS_IS_MEM_1:	forward_rs1_value	=	mem_result[1];
 			RS_IS_EX_2: 	forward_rs1_value	=	ex_result[2];
 			RS_IS_MEM_2:	forward_rs1_value	=	mem_result[2];
+			RS_IS_EX_3: 	forward_rs1_value	=	ex_result[3];
+			RS_IS_MEM_3:	forward_rs1_value	=	mem_result[3];
 		endcase
 
 		forward_rs2_value=0;
@@ -147,6 +149,8 @@ module single_ex_stage(
 			RS_IS_MEM_1:	forward_rs2_value	=	mem_result[1];
 			RS_IS_EX_2: 	forward_rs2_value	=	ex_result[2];
 			RS_IS_MEM_2:	forward_rs2_value	=	mem_result[2];
+			RS_IS_EX_3: 	forward_rs2_value	=	ex_result[3];
+			RS_IS_MEM_3:	forward_rs2_value	=	mem_result[3];
 		endcase
 	end
 
@@ -240,6 +244,14 @@ module ex_stage(
 		.mem_result(mem_result), 
 		.ex_packet_out(ex_packet_out[2])
 	);
+	single_ex_stage ex_stage_3 (
+		.clock(clock),               
+		.reset(reset),               
+		.id_ex_packet_in(id_ex_packet_in[3]),
+		.ex_result(ex_result), 
+		.mem_result(mem_result), 
+		.ex_packet_out(ex_packet_out[3])
+	);
 
 
 	// brcond
@@ -251,16 +263,18 @@ module ex_stage(
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out[0].alu_result;
 			ex_mem_branch_way = 0;
-		end
-		else if (ex_packet_out[1].take_branch || ex_packet_out[1].halt) begin
+		end else if (ex_packet_out[1].take_branch || ex_packet_out[1].halt) begin
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out[1].alu_result;
 			ex_mem_branch_way = 1;
-		end
-		else if (ex_packet_out[2].take_branch || ex_packet_out[2].halt) begin
+		end else if (ex_packet_out[2].take_branch || ex_packet_out[2].halt) begin
 			ex_mem_take_branch = 1;
 			ex_mem_target_pc = ex_packet_out[2].alu_result;
 			ex_mem_branch_way = 2;
+		end else if (ex_packet_out[3].take_branch || ex_packet_out[3].halt) begin
+			ex_mem_take_branch = 1;
+			ex_mem_target_pc = ex_packet_out[3].alu_result;
+			ex_mem_branch_way = 3;
 		end
 	end
 

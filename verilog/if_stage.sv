@@ -15,9 +15,11 @@ module detect_structural_hazard(
     input EX_MEM_PACKET ex_mem_packet[`WAYS-1:0],
     output [`WAYS-1:0] structural_haz
 );
-    assign structural_haz[0] = ex_mem_packet[0].valid &(ex_mem_packet[0].wr_mem | ex_mem_packet[0].rd_mem);
-    assign structural_haz[1] = ex_mem_packet[1].valid &(ex_mem_packet[1].wr_mem | ex_mem_packet[1].rd_mem);
-    assign structural_haz[2] = ex_mem_packet[2].valid &(ex_mem_packet[2].wr_mem | ex_mem_packet[2].rd_mem);
+genvar i;
+generate
+	for (i=0;i<`WAYS;i++)
+    	assign structural_haz[i] = ex_mem_packet[i].valid &(ex_mem_packet[i].wr_mem | ex_mem_packet[i].rd_mem);
+endgenerate
 endmodule
 
 module simple_branch_predictor(
@@ -128,14 +130,15 @@ module if_stage(
 
    
 	logic [`ROLLBACK_WIDTH-1:0] mem_count;
-	assign mem_count = {1'b0,structural_haz[0]} + {1'b0,structural_haz[1]} + {1'b0,structural_haz[2]};
+	assign mem_count = {2'b0,structural_haz[0]} + {2'b0,structural_haz[1]} + {2'b0,structural_haz[2]}+ {2'b0,structural_haz[3]};
 	logic [`ROLLBACK_WIDTH-1:0] valid_way;
-	assign invalid_way = 3-valid_way;
-	assign valid_way=3-rollback>next_tail?next_tail:3-rollback;
+	assign invalid_way = `WAYS-valid_way;
+	assign valid_way=`WAYS-rollback>next_tail?next_tail:`WAYS-rollback;
 	
     assign if_packet_out[0].valid = valid_way>0;
     assign if_packet_out[1].valid = valid_way>1;
     assign if_packet_out[2].valid = valid_way>2;
+    assign if_packet_out[3].valid = valid_way>3;
 	
     always_ff @(posedge clock) begin
 		if(reset) begin
@@ -159,6 +162,7 @@ module if_stage(
 				`CASEI(1);
 				`CASEI(2);
 				`CASEI(3);
+				`CASEI(4);
 			endcase
 		end
 	end  // always
@@ -167,6 +171,6 @@ module if_stage(
 	//assign if_packet_out.inst = PC_reg[2] ? Imem2proc_data[63:32] : Imem2proc_data[31:0];
 	
 	//********????
-	assign PC_enable = if_packet_out[0].valid | if_packet_out[1].valid | if_packet_out[2].valid | ex_mem_take_branch;
+	assign PC_enable = if_packet_out[0].valid | if_packet_out[1].valid | if_packet_out[2].valid | if_packet_out[3].valid | ex_mem_take_branch;
 	
 endmodule  // module if_stage

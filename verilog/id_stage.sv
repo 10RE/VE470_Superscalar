@@ -258,10 +258,11 @@ module id_stage(
 
 	always_comb begin
 		case (pre_rollback)
-			0:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={if_id_packet_in[0],	if_id_packet_in[1],	if_id_packet_in[2]};
-			1:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[2],		if_id_packet_in[0],	if_id_packet_in[1]};
-			2:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[1],		hold_reg[2],			if_id_packet_in[0]};
-			3:{sorted_packet[0],sorted_packet[1],sorted_packet[2]}={hold_reg[0],		hold_reg[1],			hold_reg[2]};
+			0:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={if_id_packet_in[0],	if_id_packet_in[1],	    if_id_packet_in[2], if_id_packet_in[3]};
+			1:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[3],		    if_id_packet_in[0],	    if_id_packet_in[1], if_id_packet_in[2]};
+			2:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[2],		    hold_reg[3],			if_id_packet_in[0], if_id_packet_in[1]};
+			3:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[1],		    hold_reg[2],			hold_reg[3],		if_id_packet_in[0]};
+			4:{sorted_packet[0],sorted_packet[1],sorted_packet[2],sorted_packet[3]}={hold_reg[0],		    hold_reg[1],			hold_reg[2],        hold_reg[3]};
 		endcase
 		
 	end
@@ -275,6 +276,9 @@ module id_stage(
     assign id_packet_internal[2].inst = sorted_packet[2].inst;
     assign id_packet_internal[2].NPC  = sorted_packet[2].NPC;
     assign id_packet_internal[2].PC   = sorted_packet[2].PC;
+    assign id_packet_internal[3].inst = sorted_packet[3].inst;
+    assign id_packet_internal[3].NPC  = sorted_packet[3].NPC;
+    assign id_packet_internal[3].PC   = sorted_packet[3].PC;
     
 	DEST_REG_SEL dest_reg_select[`WAYS-1:0]; 
 
@@ -374,6 +378,11 @@ module id_stage(
 	   hold_reg[2].inst  <= `SD id_packet_out[2].inst;
 	   hold_reg[2].NPC   <= `SD id_packet_out[2].NPC;
 	   hold_reg[2].PC    <= `SD id_packet_out[2].PC;
+	   
+	   hold_reg[3].valid <= `SD id_packet_out[3].valid;
+	   hold_reg[3].inst  <= `SD id_packet_out[3].inst;
+	   hold_reg[3].NPC   <= `SD id_packet_out[3].NPC;
+	   hold_reg[3].PC    <= `SD id_packet_out[3].PC;
 	end
 	
 	

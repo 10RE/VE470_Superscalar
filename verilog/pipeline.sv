@@ -180,14 +180,15 @@ module pipeline (
 	
 	// assign pipeline_completed_insts = {3'b0, mem_wb_valid_inst};
 	
-	assign pipeline_completed_inst[0] = {3'b000, mem_wb_valid_inst[0]};
-	assign pipeline_completed_inst[1] = {3'b000, mem_wb_valid_inst[1]};
-	assign pipeline_completed_inst[2] = {3'b000, mem_wb_valid_inst[2]};
 	
-	assign pipeline_error_status =  (mem_wb_illegal[0] | !mem_wb_halt[0]&mem_wb_illegal[1] | !mem_wb_halt[0]&!mem_wb_halt[1]&mem_wb_illegal[2])          ? 		ILLEGAL_INST :
-	                                (mem_wb_halt[0] | mem_wb_halt[1] | mem_wb_halt[2])                ? HALTED_ON_WFI :
-	                                ((mem2proc_response[0]==4'h0) | (mem2proc_response[1]==4'h0) | (mem2proc_response[2]==4'h0))  ? LOAD_ACCESS_FAULT :
-	                                NO_ERROR;
+	assign pipeline_error_status =  
+		(mem_wb_illegal[0] 	| !mem_wb_halt[0]&mem_wb_illegal[1] 
+							| !mem_wb_halt[0]&!mem_wb_halt[1]&mem_wb_illegal[2]
+							| !mem_wb_halt[0]&!mem_wb_halt[1]&!mem_wb_halt[2]&mem_wb_illegal[3])	? 		ILLEGAL_INST :
+		(mem_wb_halt[0] 	| mem_wb_halt[1] 	| mem_wb_halt[2])      									? 		HALTED_ON_WFI :
+		((mem2proc_response[0]==4'h0) 			| (mem2proc_response[1]==4'h0) 
+												| (mem2proc_response[2]==4'h0)
+												| (mem2proc_response[3]==4'h0))  ? LOAD_ACCESS_FAULT : NO_ERROR;
 	
 	assign pipeline_commit_wr_idx = wb_reg_wr_idx_out;
 	assign pipeline_commit_wr_data = wb_reg_wr_data_out;
@@ -197,6 +198,7 @@ module pipeline (
 genvar i;
 generate;
 	for( i=0; i<`WAYS; i++) begin
+		assign pipeline_completed_inst[i] = {3'b000, mem_wb_valid_inst[i]};
 		assign proc2mem_command[i] =
 			(proc2Dmem_command[i] == BUS_NONE) ? BUS_LOAD : proc2Dmem_command[i];
 		assign proc2mem_addr[i] =
@@ -349,22 +351,31 @@ endgenerate
 					1'b0\
 				}
 	always_ff @(posedge clock) begin
-		if (reset || mem_take_branch || rollback == 3) begin
+		if (reset || mem_take_branch || rollback == 4) begin
 			id_ex_packet[0] <= `SD `EMPTY_ID_PACKET;
 			id_ex_packet[1] <= `SD `EMPTY_ID_PACKET;
 			id_ex_packet[2] <= `SD `EMPTY_ID_PACKET;
-		end else if (rollback == 2) begin
+			id_ex_packet[3] <= `SD `EMPTY_ID_PACKET;
+		end else if (rollback == 3) begin
 			id_ex_packet[0] <= `SD id_packet[0];
 			id_ex_packet[1] <= `SD `EMPTY_ID_PACKET;
 			id_ex_packet[2] <= `SD `EMPTY_ID_PACKET;
+			id_ex_packet[3] <= `SD `EMPTY_ID_PACKET;
+		end else if (rollback == 2) begin
+			id_ex_packet[0] <= `SD id_packet[0];
+			id_ex_packet[1] <= `SD id_packet[1];
+			id_ex_packet[2] <= `SD `EMPTY_ID_PACKET;
+			id_ex_packet[3] <= `SD `EMPTY_ID_PACKET;
 		end else if (rollback == 1) begin
 			id_ex_packet[0] <= `SD id_packet[0];
 			id_ex_packet[1] <= `SD id_packet[1];
+			id_ex_packet[2] <= `SD id_packet[2];
 			id_ex_packet[2] <= `SD `EMPTY_ID_PACKET;
 		end else begin 
 			id_ex_packet[0] <= `SD id_packet[0];
 			id_ex_packet[1] <= `SD id_packet[1];
 			id_ex_packet[2] <= `SD id_packet[2];
+			id_ex_packet[3] <= `SD id_packet[3];
 		end // else: !if(reset)
 	end // always
 
@@ -379,7 +390,7 @@ endgenerate
 		.clock(clock),
 		.reset(reset),
 		.id_ex_packet_in(id_ex_packet),
-		.ex_result('{ex_mem_packet[2].alu_result,ex_mem_packet[1].alu_result,ex_mem_packet[0].alu_result}),
+		.ex_result('{ex_mem_packet[3].alu_result,ex_mem_packet[2].alu_result,ex_mem_packet[1].alu_result,ex_mem_packet[0].alu_result}),
 		.mem_result(mem_wb_result),
 		// Outputs
 		.ex_packet_out(ex_packet),
@@ -398,21 +409,23 @@ endgenerate
 	assign ex_mem_NPC[0]        = ex_mem_packet[0].NPC;
 	assign ex_mem_NPC[1]        = ex_mem_packet[1].NPC;
 	assign ex_mem_NPC[2]        = ex_mem_packet[2].NPC;
+	assign ex_mem_NPC[3]        = ex_mem_packet[3].NPC;
 	
 	assign ex_mem_valid_inst[0] = ex_mem_packet[0].valid;
 	assign ex_mem_valid_inst[1] = ex_mem_packet[1].valid;
 	assign ex_mem_valid_inst[2] = ex_mem_packet[2].valid;
+	assign ex_mem_valid_inst[3] = ex_mem_packet[3].valid;
 	
 	assign ex_mem_enable = 1'b1;
 
-	assign ex_mem_is_branch = {ex_packet[2].is_branch,ex_packet[1].is_branch,ex_packet[0].is_branch};
+	assign ex_mem_is_branch = {ex_packet[3].is_branch,ex_packet[2].is_branch,ex_packet[1].is_branch,ex_packet[0].is_branch};
 	
 	// synopsys sync_set_reset "reset"
 	always_ff @(posedge clock) begin
 		if (reset || mem_take_branch) begin
-			ex_mem_IR     <= `SD {`NOP,`NOP,`NOP};
+			ex_mem_IR     <= `SD {`NOP,`NOP,`NOP,`NOP};
 
-			ex_mem_packet <= `SD {0,0,0};
+			ex_mem_packet <= `SD {0,0,0,0};
 
 			mem_take_branch <= `SD 0;
 			mem_target_pc 	<= `SD 0;
@@ -426,13 +439,18 @@ endgenerate
 			if (ex_mem_take_branch && ex_mem_branch_way==0) begin 
 				ex_mem_packet[0] <= `SD ex_packet[0];
 				ex_mem_IR[0]<=`SD id_ex_IR[0];
-				ex_mem_packet[2:1] <= `SD {0,0};
-				ex_mem_IR[2:1] <= `SD {`NOP,`NOP};
+				ex_mem_packet[3:1] <= `SD {0,0,0};
+				ex_mem_IR[3:1] <= `SD {`NOP,`NOP,`NOP};
 			end else if (ex_mem_take_branch && ex_mem_branch_way==1) begin
 				ex_mem_packet[1:0] <= `SD ex_packet[1:0];
 				ex_mem_IR[1:0]<=`SD id_ex_IR[1:0];
-				ex_mem_packet[2] <= `SD {0};
-				ex_mem_IR[2] <= `SD {`NOP};
+				ex_mem_packet[3:2] <= `SD {0,0};
+				ex_mem_IR[3:2] <= `SD {`NOP,`NOP};
+			end else if (ex_mem_take_branch && ex_mem_branch_way==2) begin
+				ex_mem_packet[2:0] <= `SD ex_packet[2:0];
+				ex_mem_IR[2:0]<=`SD id_ex_IR[2:0];
+				ex_mem_packet[3] <= `SD {0};
+				ex_mem_IR[3] <= `SD {`NOP};
 			end else begin
 				ex_mem_IR     <= `SD id_ex_IR;
 				ex_mem_packet <= `SD ex_packet;
@@ -450,7 +468,7 @@ endgenerate
 		.clock(clock),
 		.reset(reset),
 		.ex_mem_packet_in(ex_mem_packet),
-		.Dmem2proc_data('{mem2proc_data[2][`XLEN-1:0],mem2proc_data[1][`XLEN-1:0],mem2proc_data[0][`XLEN-1:0]}),
+		.Dmem2proc_data('{mem2proc_data[3][`XLEN-1:0],mem2proc_data[2][`XLEN-1:0],mem2proc_data[1][`XLEN-1:0],mem2proc_data[0][`XLEN-1:0]}),
 		
 		// Outputs
 		.mem_result_out(mem_result_out),
@@ -489,10 +507,12 @@ endgenerate
 			`MEM_WB_SQUASH_WAY(0);
 			`MEM_WB_SQUASH_WAY(1);
 			`MEM_WB_SQUASH_WAY(2);
+			`MEM_WB_SQUASH_WAY(3);
 		end else begin
 			`MEM_WB_TAKE_WAY(0);
 			`MEM_WB_TAKE_WAY(1);
 			`MEM_WB_TAKE_WAY(2);
+			`MEM_WB_TAKE_WAY(3);
 		end
 	end // always
 

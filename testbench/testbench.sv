@@ -65,14 +65,14 @@ module testbench;
 	logic        mem_wb_valid_inst [`WAYS-1:0];
 
 	
-    logic [1:0] rollback_out;
+    logic [`ROLLBACK_WIDTH-1:0] rollback_out;
 
 
     //counter used for when pipeline infinite loops, forces termination
     logic [63:0] debug_counter;
 	// Instantiate the Pipeline
 	
-	wire [1:0]invalid_way;
+	wire [`ROLLBACK_WIDTH-1:0]invalid_way;
 	
 	`ifdef DEBUG
 	wire [`XLEN-1:0] sorted_packet_0_PC;
